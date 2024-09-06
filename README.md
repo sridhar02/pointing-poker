@@ -18,6 +18,8 @@ A simple, fast and easy to use pointing poker application for large teams
 
 ## inspiration sites
 - https://www.pointingpoker.com/
+
 - https://pointingpro.com
--https://app.planitpoker.com/room/GQVaYvgYzRZhmkGmA9Kql3LgBlLfElaK
+
+- https://app.planitpoker.com/room/GQVaYvgYzRZhmkGmA9Kql3LgBlLfElaK
 
