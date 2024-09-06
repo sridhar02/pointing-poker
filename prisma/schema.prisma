@@ -10,11 +10,53 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
+model Session {
+    id        String   @id @default(uuid())
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    // each session can have many players
+    players   Player[]
+    // each session can have many stories
+    stories   Story[]
+    // each session can have many votes
+    votes     Vote[]
+}
 
-    @@index([name])
+model Player {
+    id        String   @id @default(uuid())
+    sessionId String
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // each player belogs to a session
+    session   Session  @relation(fields: [sessionId], references: [id])
+    Vote      Vote[]
+}
+
+model Story {
+    id        String   @id @default(uuid())
+    sessionId String
+    title     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // each story belongs to a session
+    session   Session  @relation(fields: [sessionId], references: [id])
+    Vote      Vote[]
+}
+
+model Vote {
+    id        String   @id @default(uuid())
+    sessionId String
+    storyId   String
+    playerId  String
+    vote      Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // each vote belongs to a session
+    session   Session  @relation(fields: [sessionId], references: [id])
+    // each vote belongs to a story
+    story     Story    @relation(fields: [storyId], references: [id])
+    // each vote belongs to a player
+    player    Player   @relation(fields: [playerId], references: [id])
 }
