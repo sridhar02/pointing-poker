@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -12,7 +9,7 @@ datasource db {
 
 model Session {
     id        String   @id @default(uuid())
-    name      String
+    code      String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     // each session can have many players
@@ -38,6 +35,7 @@ model Story {
     id        String   @id @default(uuid())
     sessionId String
     title     String
+    link      String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     // each story belongs to a session
@@ -50,7 +48,7 @@ model Vote {
     sessionId String
     storyId   String
     playerId  String
-    vote      Int
+    vote      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     // each vote belongs to a session
