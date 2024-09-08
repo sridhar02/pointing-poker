@@ -46,7 +46,7 @@ export function Session() {
   const { data } = api.vote.getAllVotes.useQuery(
     {
       sessionCode: id as string,
-      storyId: story?.id as string,
+      storyId: story?.id ?? "",
     },
     {
       enabled: story !== null,
@@ -59,7 +59,7 @@ export function Session() {
         const filteredVotes = data.filter(
           (vote) => vote.vote !== "Cup" && vote.vote !== "?",
         );
-        filteredVotes && setAllVotes(filteredVotes);
+        setAllVotes(filteredVotes);
       }
     },
   });
@@ -67,8 +67,8 @@ export function Session() {
   const handleVote = (vote: string) => {
     createVote.mutate({
       sessionCode: id as string,
-      storyId: story?.id as string,
-      playerId: playerId as string,
+      storyId: story?.id ?? "",
+      playerId: playerId ?? "",
       vote: vote,
     });
   };
