@@ -8,7 +8,7 @@ export const playerRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const session = await ctx.db.session.findUnique({
         where: {
-          code: input.sessionCode,
+          id: input.sessionCode,
         },
       });
 

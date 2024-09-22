@@ -12,7 +12,7 @@ export const sessionRouter = createTRPCRouter({
       const uniqueCode = createCode();
       const session = await ctx.db.session.create({
         data: {
-          code: uniqueCode,
+          id: uniqueCode,
         },
       });
 
