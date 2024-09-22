@@ -4,6 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import useLocalStorage from "../hooks/useLocalStorage";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 export function Hero() {
   const router = useRouter();
@@ -18,7 +29,7 @@ export function Hero() {
       setName("");
       setSessionCode("");
       setPlayerId(player.id);
-      router.push(`/session/${session.code}`);
+      router.push(`/session/${session.id}`);
     },
   });
 
@@ -27,54 +38,37 @@ export function Hero() {
   };
 
   return (
-    <div className="m-10">
-      <div className="flex flex-col rounded-md bg-gray-300 p-6">
-        <h1 className="text-4xl font-bold">Pointing Poker</h1>
-        <p className="mt-10 text-lg">
-          Welcome to pointing poker (aka planning poker)! Online, virtual and
+    <div className="m-4 flex flex-col">
+      <div className="flex flex-col rounded-md">
+        <p className="mt-4 text-lg">
+          Welcome to Scrum pointer (aka planning poker)! Online, virtual and
           co-located agile teams use this application during their
           planning/pointing sessions to effectively communicate points for
           stories.
         </p>
       </div>
-      <div className="mt-4 flex w-full flex-col gap-3 md:flex-row">
-        <div className="flex w-full flex-col rounded-md bg-gray-300 p-6">
-          <div className="mt-4 flex w-full flex-col items-center justify-between gap-6">
-            <div className="flex w-1/3 flex-col gap-2">
-              <input
-                type="text"
-                placeholder="Enter your name"
-                className="rounded-md p-2"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <p className="text-sm text-gray-500">Max 10 characters *</p>
+      <div className="mt-8 flex flex-col justify-center gap-3">
+        <div className="flex w-full items-center justify-center">
+          <form action="" className="flex w-[300px] flex-col gap-4">
+            <input
+              placeholder="Name"
+              className="w-full rounded-md border-2 border-gray-300 p-2"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <div className="flex w-full justify-center">
+              <button
+                className="flex w-[200px] items-center justify-center rounded-md bg-blue-500 p-2 text-white"
+                onClick={handleCreateSession}
+              >
+                Create a Session
+              </button>
             </div>
-
-            <div className="mt-4 w-1/3">
-              <input
-                type="text"
-                placeholder="Enter session code"
-                className="w-full rounded-md p-2"
-                value={sessionCode}
-                onChange={(e) => setSessionCode(e.target.value)}
-              />
-            </div>
-
-            <button className="w-1/3 rounded-md bg-blue-500 p-2 text-white">
-              Join Session
-            </button>
-
-            <button
-              className="w-1/3 rounded-md bg-blue-500 p-2 text-white"
-              onClick={handleCreateSession}
-            >
-              Create a new session
-            </button>
-          </div>
+          </form>
         </div>
       </div>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <h2 className="text-2xl font-bold">Advantages of Pointing Poker</h2>
         <ul className="mt-4 flex list-disc flex-col gap-4 pl-4">
           <li>
@@ -104,7 +98,7 @@ export function Hero() {
             </p>
           </li>
         </ul>
-      </div>
+      </div> */}
     </div>
   );
 }

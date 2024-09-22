@@ -15,7 +15,7 @@ export function SessionSidebar() {
   );
 
   return (
-    <div className="h-full w-[250px] border-r-2 border-gray-300 p-2">
+    <div className="h-full w-[250px] border-r-2 border-gray-300 bg-white p-2">
       {isLoading ? (
         <div>loading ...</div>
       ) : (
