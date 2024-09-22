@@ -29,7 +29,7 @@ export function Session() {
         <div className="w-full">
           <div className="w-full p-2">
             <div>Session ID: {id}</div>
-            <h3>Name: {playerId}</h3>
+            {/* <h3>Name: {playerId}</h3> */}
             <div className="mt-2 flex flex-col gap-1">
               <label htmlFor="" className="font-semibold">
                 Story Description
@@ -37,7 +37,7 @@ export function Session() {
               <textarea
                 name="description"
                 id=""
-                className="w-1/3 border-2 border-gray-400"
+                className="w-full border-2 border-gray-400 p-2"
                 value={des}
                 onChange={(e) => setDes(e.target.value)}
               />
@@ -63,7 +63,7 @@ export function Session() {
               ))}
             </div>
 
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <h2 className="text-xl font-bold">Players</h2>
               <div>
                 {players?.map((player) => (
@@ -72,7 +72,7 @@ export function Session() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

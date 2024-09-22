@@ -1,39 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { api } from "~/trpc/react";
 import useLocalStorage from "../hooks/useLocalStorage";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
 
 export function Hero() {
   const router = useRouter();
   const [playerId, setPlayerId] = useLocalStorage<string>("playerId", "");
 
   const [name, setName] = useState("");
-  const [sessionCode, setSessionCode] = useState("");
 
   const createSession = api.session.createSession.useMutation({
     onSuccess: (data) => {
       const { session, player } = data;
       setName("");
-      setSessionCode("");
       setPlayerId(player.id);
       router.push(`/session/${session.id}`);
     },
   });
 
-  const handleCreateSession = async () => {
+  const handleCreateSession = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     createSession.mutate({ name });
   };
 
@@ -49,7 +38,11 @@ export function Hero() {
       </div>
       <div className="mt-8 flex flex-col justify-center gap-3">
         <div className="flex w-full items-center justify-center">
-          <form action="" className="flex w-[300px] flex-col gap-4">
+          <form
+            action=""
+            className="flex w-[300px] flex-col gap-4"
+            onSubmit={handleCreateSession}
+          >
             <input
               placeholder="Name"
               className="w-full rounded-md border-2 border-gray-300 p-2"
@@ -58,11 +51,12 @@ export function Hero() {
               required
             />
             <div className="flex w-full justify-center">
-              <button
-                className="flex w-[200px] items-center justify-center rounded-md bg-blue-500 p-2 text-white"
-                onClick={handleCreateSession}
-              >
-                Create a Session
+              <button className="flex w-[200px] items-center justify-center rounded-md bg-blue-500 p-2 text-white">
+                {createSession.isPending ? (
+                  <>Loading...</>
+                ) : (
+                  "Create a New Session"
+                )}
               </button>
             </div>
           </form>
