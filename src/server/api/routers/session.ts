@@ -1,20 +1,16 @@
 import { z } from "zod";
-import { init } from "@paralleldrive/cuid2";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-
-const createCode = init({ length: 6 });
 
 export const sessionRouter = createTRPCRouter({
   createSession: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const uniqueCode = createCode();
       const session = await ctx.db.session.create({
-        data: {
-          id: uniqueCode,
-        },
+        data: {},
       });
+
+      console.log(session);
 
       const player = await ctx.db.player.create({
         data: {
@@ -23,9 +19,22 @@ export const sessionRouter = createTRPCRouter({
         },
       });
 
+      console.log(player);
+
       return {
         session,
         player,
       };
+    }),
+  getCurrentSession: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const session = await ctx.db.session.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      console.log(session);
+      return session;
     }),
 });

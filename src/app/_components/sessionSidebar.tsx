@@ -1,6 +1,8 @@
 "use client";
 import { useParams } from "next/navigation";
+
 import { api } from "~/trpc/react";
+
 import { AvatarComponent } from "./Avatar";
 
 export function SessionSidebar() {

@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -20,5 +21,25 @@ export const playerRouter = createTRPCRouter({
           },
         }))
       );
+    }),
+  createPlayer: publicProcedure
+    .input(z.object({ name: z.string(), sessionId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const session = await ctx.db.session.findUnique({
+        where: {
+          id: input.sessionId,
+        },
+      });
+
+      const player =
+        session &&
+        (await ctx.db.player.create({
+          data: {
+            name: input.name,
+            sessionId: session.id,
+          },
+        }));
+
+      return player;
     }),
 });

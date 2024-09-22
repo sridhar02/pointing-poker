@@ -1,16 +1,16 @@
-import { Story, Vote } from "@prisma/client";
-
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
   Rectangle,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
+
+import { type Story, type Vote } from "@prisma/client";
 
 import { useVoteAnalysis } from "../hooks/useVoteAnalysis";
 

@@ -1,5 +1,6 @@
-import { Vote } from "@prisma/client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect,useState } from "react";
+
+import { type Vote } from "@prisma/client";
 
 export const useVoteAnalysis = (votesData: Vote[]) => {
   const [analysis, setAnalysis] = useState({

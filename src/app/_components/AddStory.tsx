@@ -1,5 +1,7 @@
-import { Story, Vote } from "@prisma/client";
 import { useState } from "react";
+
+import { Story, Vote } from "@prisma/client";
+
 import {
   AlertDialog,
   AlertDialogAction,
