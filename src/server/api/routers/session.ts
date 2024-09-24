@@ -10,8 +10,6 @@ export const sessionRouter = createTRPCRouter({
         data: {},
       });
 
-      console.log(session);
-
       const player = await ctx.db.player.create({
         data: {
           name: input.name,
@@ -19,10 +17,17 @@ export const sessionRouter = createTRPCRouter({
         },
       });
 
-      console.log(player);
+      const updatedSession = await ctx.db.session.update({
+        where: {
+          id: session.id,
+        },
+        data: {
+          createdByPlayerId: player.id,
+        },
+      });
 
       return {
-        session,
+        session: updatedSession,
         player,
       };
     }),
@@ -34,7 +39,6 @@ export const sessionRouter = createTRPCRouter({
           id: input.id,
         },
       });
-      console.log(session);
       return session;
     }),
 });

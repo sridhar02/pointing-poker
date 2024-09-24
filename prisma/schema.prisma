@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Session {
-    id        String   @id @default(uuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    players   Player[]
-    stories   Story[]
+    id                String   @id @default(uuid())
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+    createdByPlayerId String?
+    players           Player[]
+    stories           Story[]
 }
 
 model Player {
