@@ -10,6 +10,7 @@ import useLocalStorage from "../hooks/useLocalStorage";
 export function Hero() {
   const router = useRouter();
   const [playerId, setPlayerId] = useLocalStorage<string>("playerId", "");
+  // const [, setPlayerId] = useLocalStorage<string>("createdByPlayerId", "");
 
   const [name, setName] = useState("");
 

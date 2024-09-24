@@ -2,19 +2,49 @@
 
 import { useState } from "react";
 
-import { type Player } from "@prisma/client";
+import { type Player, type Session } from "@prisma/client";
+
+import { api } from "~/trpc/react";
 
 import { pokerVotes } from "./session/utils";
 
 interface ownProps {
   id: string;
+  session: Session | null | undefined;
   players: Player[] | undefined | null;
   currentPlayer: Player | undefined;
 }
 
 export function PlayerSession(props: ownProps) {
-  const { currentPlayer, id, players } = props;
+  const { currentPlayer, id, players, session } = props;
+
   const [des, setDes] = useState("");
+  const isCreator = currentPlayer?.id === session?.createdByPlayerId;
+
+  const { data: stories } = api.story.getAllStories.useQuery(
+    {
+      sessionCode: id,
+    },
+    {
+      enabled: id !== null && !isCreator,
+      refetchInterval: 1000,
+    },
+  );
+
+  const createStory = api.story.createStory.useMutation({
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
+
+  const handleBlur = () => {
+    createStory.mutate({
+      title: des,
+      sessionId: id,
+    });
+  };
+
+  const lastStory = stories?.[stories?.length - 1];
 
   return (
     <div className="w-full p-2">
@@ -32,19 +62,23 @@ export function PlayerSession(props: ownProps) {
           name="description"
           id=""
           className="w-full rounded-md border-2 border-gray-400 p-2"
-          value={des}
+          value={des || lastStory?.title}
           onChange={(e) => setDes(e.target.value)}
+          onBlur={handleBlur}
+          disabled={!isCreator}
         />
       </div>
 
-      <div className="mt-4 flex gap-20">
-        <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-          Clear votes
-        </button>
-        <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-          Show Votes
-        </button>
-      </div>
+      {isCreator && (
+        <div className="mt-4 flex gap-20">
+          <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
+            Clear votes
+          </button>
+          <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
+            Show Votes
+          </button>
+        </div>
+      )}
 
       <div className="mt-4 flex w-1/2 flex-wrap justify-center gap-4">
         {pokerVotes.map((vote) => (
@@ -63,7 +97,6 @@ export function PlayerSession(props: ownProps) {
           {players?.map((player) => (
             <div key={player.id} className="mt-4 flex items-center gap-2">
               <p className="text-xl">{player.name}</p>
-              <p className="ml-4 text-xl">({player.id})</p>
             </div>
           ))}
         </div>

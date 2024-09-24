@@ -13,6 +13,15 @@ export function Session() {
   const { id } = useParams();
   const [playerId, setPlayerId] = useLocalStorage<string>("playerId", "");
 
+  const { data: session, isLoading } = api.session.getCurrentSession.useQuery(
+    {
+      id: id as string,
+    },
+    {
+      enabled: id !== null,
+    },
+  );
+
   const { data: players } = api.player.getAllPlayers.useQuery(
     {
       sessionCode: id as string,
@@ -32,6 +41,7 @@ export function Session() {
           id={id as string}
           players={players}
           currentPlayer={currentPlayer}
+          session={session}
         />
       ) : (
         <>
