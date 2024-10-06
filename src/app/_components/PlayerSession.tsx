@@ -4,14 +4,14 @@ import { useState } from "react";
 
 import { type Player, type Session } from "@prisma/client";
 
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 
 import { pokerVotes } from "./session/utils";
 
 interface ownProps {
   id: string;
   session: Session | null | undefined;
-  players: Player[] | undefined | null;
+  players: RouterOutputs["player"]["getAllPlayers"];
   currentPlayer: Player | undefined;
 }
 
@@ -31,6 +31,18 @@ export function PlayerSession(props: ownProps) {
     },
   );
 
+  const lastStory = stories?.[stories?.length - 1];
+
+  // const { data: votes } = api.vote.getAllVotes.useQuery(
+  //   {
+  //     sessionCode: id,
+  //     storyId: lastStory?.id,
+  //   },
+  //   {
+  //     refetchInterval: 1000,
+  //   },
+  // );
+
   const createStory = api.story.createStory.useMutation({
     onSuccess: (data) => {
       console.log(data);
@@ -44,7 +56,29 @@ export function PlayerSession(props: ownProps) {
     });
   };
 
-  const lastStory = stories?.[stories?.length - 1];
+  const createVote = api.vote.createVote.useMutation({
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
+
+  const handleVote = (voteId: string) => {
+    if (lastStory && currentPlayer) {
+      console.log({
+        sessionCode: id,
+        storyId: lastStory?.id,
+        playerId: currentPlayer?.id,
+        vote: voteId,
+      });
+      createVote.mutate({
+        sessionCode: id,
+        storyId: lastStory?.id,
+        playerId: currentPlayer?.id,
+        vote: voteId,
+      });
+    }
+  };
+  console.log(players);
 
   return (
     <div className="w-full p-2">
@@ -85,6 +119,7 @@ export function PlayerSession(props: ownProps) {
           <div
             key={vote.id}
             className="flex w-1/6 cursor-pointer items-center justify-center rounded-md border-2 border-gray-300 bg-teal-400 py-3 hover:border-blue-400"
+            onClick={() => handleVote(vote.id)}
           >
             {vote.name}
           </div>
@@ -97,6 +132,7 @@ export function PlayerSession(props: ownProps) {
           {players?.map((player) => (
             <div key={player.id} className="mt-4 flex items-center gap-2">
               <p className="text-xl">{player.name}</p>
+              <p>{player.id}</p>
             </div>
           ))}
         </div>

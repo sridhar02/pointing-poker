@@ -19,6 +19,13 @@ export const playerRouter = createTRPCRouter({
           where: {
             sessionId: session.id,
           },
+          include: {
+            Vote: {
+              include: {
+                story: true,
+              },
+            },
+          },
         }))
       );
     }),

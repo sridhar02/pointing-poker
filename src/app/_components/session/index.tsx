@@ -22,7 +22,7 @@ export function Session() {
     },
   );
 
-  const { data: players } = api.player.getAllPlayers.useQuery(
+  const { data: players, isSuccess } = api.player.getAllPlayers.useQuery(
     {
       sessionCode: id as string,
     },
@@ -33,6 +33,11 @@ export function Session() {
   );
 
   const currentPlayer = players?.find((player) => player.id === playerId);
+
+
+  if (!isSuccess) {
+    return <div>Loading...</div>
+  } 
 
   return (
     <div className="w-full bg-white">
