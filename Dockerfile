@@ -7,7 +7,6 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ARG NODE_VERSION=20.16.0
-ENV DATABASE_URL=$DATABASE_URL
 
 ################################################################################
 # Use node image for base image for all stages.
@@ -15,7 +14,6 @@ FROM node:${NODE_VERSION}-alpine as base
 
 # Set working directory for all build stages.
 WORKDIR /usr/src/app
-
 
 ################################################################################
 # Create a stage for installing production dependecies.
@@ -26,6 +24,8 @@ FROM base as deps
 # Leverage bind mounts to package.json and package-lock.json to avoid having to copy them
 # into this layer.
 COPY prisma ./prisma
+
+ENV DATABASE_URL=$DATABASE_URL
 
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
