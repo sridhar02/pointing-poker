@@ -26,8 +26,6 @@ FROM base as deps
 # into this layer.
 COPY prisma ./prisma
 
-ENV DATABASE_URL=${DATABASE_URL}
-
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
@@ -48,6 +46,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY . .
 COPY prisma ./prisma
 # Run the build script.
+ENV DATABASE_URL=$DATABASE_URL
+
 RUN npm run build
 
 ################################################################################
