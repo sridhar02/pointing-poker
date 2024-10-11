@@ -46,7 +46,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY . .
 COPY prisma ./prisma
 # Run the build script.
-ENV DATABASE_URL=$DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 
 RUN npm run build
 
