@@ -59,6 +59,9 @@ importers:
       next:
         specifier: ^14.2.4
         version: 14.2.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      prisma:
+        specifier: ^5.14.0
+        version: 5.20.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -120,9 +123,6 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.6.5
         version: 0.6.8(prettier@3.3.3)
-      prisma:
-        specifier: ^5.14.0
-        version: 5.20.0
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.13
