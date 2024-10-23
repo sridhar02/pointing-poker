@@ -29,41 +29,50 @@ export function Hero() {
   };
 
   return (
-    <div className="m-4 flex flex-col">
-      <div className="flex flex-col rounded-md">
-        <p className="mt-4 text-lg">
-          Welcome to Scrum pointer (aka planning poker)! Online, virtual and
-          co-located agile teams use this application during their
-          planning/pointing sessions to effectively communicate points for
-          stories.
-        </p>
-      </div>
-      <div className="mt-8 flex flex-col justify-center gap-3">
-        <div className="flex w-full items-center justify-center">
-          <form
-            action=""
-            className="flex w-[300px] flex-col gap-4"
-            onSubmit={handleCreateSession}
-          >
-            <input
-              placeholder="Name"
-              className="w-full rounded-md border-2 border-gray-300 p-2"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <div className="flex w-full justify-center">
-              <button className="flex w-[200px] items-center justify-center rounded-md bg-blue-500 p-2 text-white">
-                {createSession.isPending ? (
-                  <>Loading...</>
-                ) : (
-                  "Create a New Session"
-                )}
-              </button>
-            </div>
-          </form>
+    <div className="flex h-screen flex-col">
+      <div className="flex h-full items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center rounded-md bg-white p-6 text-center shadow-lg">
+          <h2 className="mb-4 text-4xl font-bold text-blue-600">Coming Soon</h2>
+          <p className="mt-4 max-w-2xl text-lg text-gray-700">
+            Welcome to Scrum Pointer Online, virtual and co-located agile teams
+            use this application during their planning/pointing sessions to
+            effectively communicate points for stories.
+          </p>
+          <div className="mt-6">
+            <p className="text-sm italic text-gray-500">
+              Stay tuned for updates!
+            </p>
+          </div>
         </div>
       </div>
+      {false && (
+        <div className="mt-8 flex flex-col justify-center gap-3">
+          <div className="flex w-full items-center justify-center">
+            <form
+              action=""
+              className="flex w-[300px] flex-col gap-4"
+              onSubmit={handleCreateSession}
+            >
+              <input
+                placeholder="Name"
+                className="w-full rounded-md border-2 border-gray-300 p-2"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <div className="flex w-full justify-center">
+                <button className="flex w-[200px] items-center justify-center rounded-md bg-blue-500 p-2 text-white">
+                  {createSession.isPending ? (
+                    <>Loading...</>
+                  ) : (
+                    "Create a New Session"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* <div className="mt-4">
         <h2 className="text-2xl font-bold">Advantages of Pointing Poker</h2>
         <ul className="mt-4 flex list-disc flex-col gap-4 pl-4">
