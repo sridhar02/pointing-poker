@@ -30,7 +30,7 @@ export function Hero() {
 
   return (
     <div className="flex h-screen flex-col">
-      <div className="flex h-full items-center justify-center bg-gray-100">
+      {/* <div className="flex h-full items-center justify-center bg-gray-100">
         <div className="flex flex-col items-center rounded-md bg-white p-6 text-center shadow-lg">
           <h2 className="mb-4 text-4xl font-bold text-blue-600">Coming Soon</h2>
           <p className="mt-4 max-w-2xl text-lg text-gray-700">
@@ -44,8 +44,8 @@ export function Hero() {
             </p>
           </div>
         </div>
-      </div>
-      {false && (
+      </div> */}
+      {true && (
         <div className="mt-8 flex flex-col justify-center gap-3">
           <div className="flex w-full items-center justify-center">
             <form
