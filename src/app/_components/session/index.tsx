@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { api } from "~/trpc/react";
@@ -32,19 +32,40 @@ export function Session() {
     },
   );
 
+  const [playerList, setPlayerList] = useState(players || []);
+  console.log(playerList, players);
+
   const currentPlayer = players?.find((player) => player.id === playerId);
 
+  api.player.onPlayerUpdate.useSubscription(
+    { sessionId: session && session.id },
+    {
+      onData: ({ action, player }: { action: string; player: any }) => {
+        console.log(action, player);
+        if (action === "created") {
+          setPlayerList((prev) => [...prev, player]);
+        }
+      },
+    },
+  );
+
+  // Sync initial query data with local state
+  useEffect(() => {
+    if (isSuccess && players) {
+      setPlayerList(players);
+    }
+  }, [isSuccess, players]);
 
   if (!isSuccess) {
-    return <div>Loading...</div>
-  } 
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full bg-white">
       {playerId ? (
         <PlayerSession
           id={id as string}
-          players={players}
+          players={playerList}
           currentPlayer={currentPlayer}
           session={session}
         />
