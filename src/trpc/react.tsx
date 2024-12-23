@@ -9,7 +9,6 @@ import {
   unstable_httpBatchStreamLink,
   wsLink,
   createWSClient,
-  httpBatchLink,
 } from "@trpc/client";
 // import { wsLink, createWSClient } from "@trpc/client/";
 import { createTRPCReact } from "@trpc/react-query";
@@ -61,11 +60,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const [trpcClient] = useState(() =>
     api.createClient({
       links: [
-        loggerLink({
-          enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
-        }),
+        wsLink({ client: wsClient, transformer: SuperJSON }),
         unstable_httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + "/api/trpc",
@@ -75,7 +70,11 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             return headers;
           },
         }),
-        wsLink({ client: wsClient, transformer: SuperJSON }),
+        loggerLink({
+          enabled: (op) =>
+            process.env.NODE_ENV === "development" ||
+            (op.direction === "down" && op.result instanceof Error),
+        }),
       ],
     }),
   );
