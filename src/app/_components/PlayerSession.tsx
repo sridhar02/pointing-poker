@@ -78,7 +78,6 @@ export function PlayerSession(props: ownProps) {
       });
     }
   };
-  console.log(players);
 
   return (
     <div className="w-full p-2">
@@ -132,7 +131,6 @@ export function PlayerSession(props: ownProps) {
           {players?.map((player) => (
             <div key={player.id} className="mt-4 flex items-center gap-2">
               <p className="text-xl">{player.name}</p>
-              <p>{player.id}</p>
             </div>
           ))}
         </div>
