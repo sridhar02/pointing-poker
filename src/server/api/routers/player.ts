@@ -1,8 +1,10 @@
 import { create } from "domain";
 import { z } from "zod";
 import { observable } from "@trpc/server/observable";
-
+import { EventEmitter } from "events";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+
+const playerEvents = new EventEmitter();
 
 export const playerRouter = createTRPCRouter({
   getAllPlayers: publicProcedure
@@ -31,9 +33,26 @@ export const playerRouter = createTRPCRouter({
       );
     }),
 
-  // onPlayerUpdate: publicProcedure.subscription(async ({ ctx }) => {
-  //   return ctx.db.player.
-  // }),
+  onPlayerUpdate: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .subscription(({ input }) => {
+      return observable<{ action: string; player: any }>((emit) => {
+        const onPlayerUpdate = (data: {
+          sessionId: string;
+          action: string;
+          player: any;
+        }) => {
+          if (data.sessionId === input.sessionId) {
+            emit.next({ action: data.action, player: data.player });
+          }
+        };
+        playerEvents.on("player-update", onPlayerUpdate);
+
+        return () => {
+          playerEvents.off("player-update", onPlayerUpdate);
+        };
+      });
+    }),
 
   createPlayer: publicProcedure
     .input(z.object({ name: z.string(), sessionId: z.string() }))
@@ -52,6 +71,15 @@ export const playerRouter = createTRPCRouter({
             sessionId: session.id,
           },
         }));
+
+      // Emit an event for the newly created player
+      if (player) {
+        playerEvents.emit("player-update", {
+          sessionId: input.sessionId,
+          action: "created",
+          player,
+        });
+      }
 
       return player;
     }),
