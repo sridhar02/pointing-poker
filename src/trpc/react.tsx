@@ -3,8 +3,15 @@
 import { useState } from "react";
 import SuperJSON from "superjson";
 
-import { type QueryClient,QueryClientProvider } from "@tanstack/react-query";
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  loggerLink,
+  unstable_httpBatchStreamLink,
+  wsLink,
+  createWSClient,
+  httpBatchLink,
+} from "@trpc/client";
+// import { wsLink, createWSClient } from "@trpc/client/";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 
@@ -38,6 +45,16 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
+// const WS_URL = "ws://localhost:3001";
+
+const wsClient = createWSClient({
+  url: `ws://localhost:3001`,
+  connectionParams: async () => {
+    return {
+      token: "supersecret",
+    };
+  },
+});
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
@@ -58,8 +75,9 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             return headers;
           },
         }),
+        wsLink({ client: wsClient, transformer: SuperJSON }),
       ],
-    })
+    }),
   );
 
   return (

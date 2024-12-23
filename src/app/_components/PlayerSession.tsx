@@ -27,7 +27,7 @@ export function PlayerSession(props: ownProps) {
     },
     {
       enabled: id !== null && !isCreator,
-      refetchInterval: 1000,
+      // refetchInterval: 1000,
     },
   );
 
