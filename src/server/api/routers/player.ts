@@ -1,5 +1,6 @@
 import { create } from "domain";
 import { z } from "zod";
+import { observable } from "@trpc/server/observable";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -29,6 +30,11 @@ export const playerRouter = createTRPCRouter({
         }))
       );
     }),
+
+  // onPlayerUpdate: publicProcedure.subscription(async ({ ctx }) => {
+  //   return ctx.db.player.
+  // }),
+
   createPlayer: publicProcedure
     .input(z.object({ name: z.string(), sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
