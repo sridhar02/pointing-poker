@@ -2,8 +2,10 @@ import { EventEmitter } from "events";
 import { z } from "zod";
 
 import { observable } from "@trpc/server/observable";
+import { type inferProcedureOutput } from "@trpc/server";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { AppRouter } from "../root";
 
 const voteEvents = new EventEmitter();
 
@@ -40,7 +42,6 @@ export const voteRouter = createTRPCRouter({
   onVoteUpdate: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .subscription(({ input }) => {
-      console.log("Received vote-update event:");
       return observable<{ action: string; vote: any }>((emit) => {
         const onStoryUpdate = (data: {
           sessionId: string;
@@ -48,7 +49,6 @@ export const voteRouter = createTRPCRouter({
           action: string;
           vote: any;
         }) => {
-          console.log({ data });
           if (data.sessionId === input.sessionId) {
             emit.next({ action: data.action, vote: data.vote });
           }
@@ -71,7 +71,6 @@ export const voteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(input);
       const session = await ctx.db.session.findUnique({
         where: {
           id: input.sessionCode,
@@ -109,8 +108,6 @@ export const voteRouter = createTRPCRouter({
             },
           }));
       }
-
-      console.log({ voteResponse });
 
       if (voteResponse && session) {
         voteEvents.emit("vote-update", {
