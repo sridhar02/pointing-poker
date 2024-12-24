@@ -15,7 +15,6 @@ export const storyRouter = createTRPCRouter({
           id: input.sessionCode,
         },
       });
-      console.log({ session });
       return (
         session &&
         (await ctx.db.story.findMany({
@@ -29,7 +28,6 @@ export const storyRouter = createTRPCRouter({
   onStoryUpdate: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .subscription(({ input }) => {
-      console.log("Received story-update event:");
       return observable<{ action: string; story: any }>((emit) => {
         const onStoryUpdate = (data: {
           sessionId: string;
@@ -84,8 +82,6 @@ export const storyRouter = createTRPCRouter({
 
       // Emit an event for the newly created player
       if (story) {
-        console.log("came here");
-
         storyEvents.emit("story-update", {
           sessionId: input.sessionId,
           action: "story-text-update",

@@ -33,7 +33,6 @@ export function Session() {
   );
 
   const [playerList, setPlayerList] = useState(players || []);
-  // console.log(playerList, players);
 
   const currentPlayer = players?.find((player) => player.id === playerId);
   api.player.onPlayerUpdate.useSubscription(
