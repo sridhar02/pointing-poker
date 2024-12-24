@@ -5,12 +5,11 @@ import SuperJSON from "superjson";
 
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  createWSClient,
   loggerLink,
   unstable_httpBatchStreamLink,
   wsLink,
-  createWSClient,
 } from "@trpc/client";
-// import { wsLink, createWSClient } from "@trpc/client/";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 
