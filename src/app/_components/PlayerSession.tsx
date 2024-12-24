@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { useDebounce } from "use-debounce";
 import { type Player, type Session } from "@prisma/client";
 
 import { api, type RouterOutputs } from "~/trpc/react";
-
 import { pokerVotes } from "./session/utils";
-
 interface ownProps {
   id: string;
   session: Session | null | undefined;
@@ -19,6 +17,12 @@ export function PlayerSession(props: ownProps) {
   const { currentPlayer, id, players, session } = props;
 
   const [des, setDes] = useState("");
+  const [story, setStory] = useState<{ id: string | null; text: string }>({
+    id: null,
+    text: "",
+  });
+  const [debouncedDescription] = useDebounce(story.text, 500);
+
   const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
   const { data: stories } = api.story.getAllStories.useQuery(
@@ -27,7 +31,31 @@ export function PlayerSession(props: ownProps) {
     },
     {
       enabled: id !== null && !isCreator,
-      // refetchInterval: 1000,
+    },
+  );
+
+  const createStory = api.story.createStory.useMutation({
+    onSuccess: (data) => {
+      console.log({ data });
+      if (data?.id) {
+        setStory((prev) => ({
+          ...prev,
+          id: data.id,
+          text: data.title, // Update the story ID after creation
+        }));
+      }
+    },
+  });
+
+  api.story.onStoryUpdate.useSubscription(
+    { sessionId: id },
+    {
+      onData: ({ action, story }: { action: string; story: any }) => {
+        console.log({ action, story });
+        if (action === "story-text-update") {
+          setStory({ id: story.id, text: story.title });
+        }
+      },
     },
   );
 
@@ -43,12 +71,6 @@ export function PlayerSession(props: ownProps) {
   //   },
   // );
 
-  const createStory = api.story.createStory.useMutation({
-    onSuccess: (data) => {
-      console.log(data);
-    },
-  });
-
   const handleBlur = () => {
     createStory.mutate({
       title: des,
@@ -58,18 +80,18 @@ export function PlayerSession(props: ownProps) {
 
   const createVote = api.vote.createVote.useMutation({
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
     },
   });
 
   const handleVote = (voteId: string) => {
     if (lastStory && currentPlayer) {
-      console.log({
-        sessionCode: id,
-        storyId: lastStory?.id,
-        playerId: currentPlayer?.id,
-        vote: voteId,
-      });
+      // console.log({
+      //   sessionCode: id,
+      //   storyId: lastStory?.id,
+      //   playerId: currentPlayer?.id,
+      //   vote: voteId,
+      // });
       createVote.mutate({
         sessionCode: id,
         storyId: lastStory?.id,
@@ -78,6 +100,38 @@ export function PlayerSession(props: ownProps) {
       });
     }
   };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setStory((prev) => ({
+      ...prev,
+      text: e.target.value,
+    }));
+  };
+
+  console.log({ stories });
+  useEffect(() => {
+    if (stories && stories.length > 0) {
+      const existingStory = stories?.[stories?.length - 1];
+      console.log({ existingStory });
+      existingStory &&
+        setStory({
+          id: existingStory.id,
+          text: existingStory.title,
+        });
+    }
+  }, [stories]);
+
+  useEffect(() => {
+    if (debouncedDescription && id) {
+      createStory.mutate({
+        title: debouncedDescription,
+        sessionId: id,
+        storyId: story.id ? story.id : undefined,
+      });
+    }
+  }, [debouncedDescription]);
+
+  console.log({ story });
 
   return (
     <div className="w-full p-2">
@@ -95,9 +149,8 @@ export function PlayerSession(props: ownProps) {
           name="description"
           id=""
           className="w-full rounded-md border-2 border-gray-400 p-2"
-          value={des || lastStory?.title}
-          onChange={(e) => setDes(e.target.value)}
-          onBlur={handleBlur}
+          value={story.text}
+          onChange={handleTextChange}
           disabled={!isCreator}
         />
       </div>

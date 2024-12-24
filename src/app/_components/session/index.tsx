@@ -33,11 +33,11 @@ export function Session() {
   );
 
   const [playerList, setPlayerList] = useState(players || []);
-  console.log(playerList, players);
+  // console.log(playerList, players);
 
   const currentPlayer = players?.find((player) => player.id === playerId);
-
   api.player.onPlayerUpdate.useSubscription(
+    // @ts-ignore
     { sessionId: session && session.id },
     {
       onData: ({ action, player }: { action: string; player: any }) => {
