@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+import { type Player } from "@prisma/client";
+
 import { api } from "~/trpc/react";
 
 import useLocalStorage from "../../hooks/useLocalStorage";
@@ -32,15 +34,15 @@ export function Session() {
     },
   );
 
-  const [playerList, setPlayerList] = useState(players || []);
+  const [playerList, setPlayerList] = useState(players ?? []);
 
   const currentPlayer = players?.find((player) => player.id === playerId);
+
   api.player.onPlayerUpdate.useSubscription(
-    // @ts-ignore
-    { sessionId: session && session.id },
+    // @ts-expect-error overload error
+    { sessionId: session?.id },
     {
-      onData: ({ action, player }: { action: string; player: any }) => {
-        console.log(action, player);
+      onData: ({ action, player }: { action: string; player: Player }) => {
         if (action === "created") {
           setPlayerList((prev) => [...prev, player]);
         }

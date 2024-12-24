@@ -1,11 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-import { type Player, type Session } from "@prisma/client";
 
+import {
+  type Player,
+  type Session,
+  type Story,
+  type Vote,
+} from "@prisma/client";
+import { type inferProcedureOutput } from "@trpc/server";
+
+import { type AppRouter } from "~/server/api/root"; // Path to your app router
 import { api, type RouterOutputs } from "~/trpc/react";
-import { pokerVotes } from "./session/utils";
+
+import { PlayerVotes } from "./PlayerVotes";
+import { VotesList } from "./VotesList";
+
+type VoteResponse = inferProcedureOutput<AppRouter["vote"]["createVote"]>;
+
 interface ownProps {
   id: string;
   session: Session | null | undefined;
@@ -16,15 +29,14 @@ interface ownProps {
 export function PlayerSession(props: ownProps) {
   const { currentPlayer, id, players, session } = props;
 
-  const [des, setDes] = useState("");
   const [story, setStory] = useState<{ id: string | null; text: string }>({
     id: null,
     text: "",
   });
   const [debouncedDescription] = useDebounce(story.text, 500);
-
   const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
+  // Story handlers
   const { data: stories } = api.story.getAllStories.useQuery(
     {
       sessionCode: id,
@@ -36,7 +48,6 @@ export function PlayerSession(props: ownProps) {
 
   const createStory = api.story.createStory.useMutation({
     onSuccess: (data) => {
-      console.log({ data });
       if (data?.id) {
         setStory((prev) => ({
           ...prev,
@@ -50,8 +61,8 @@ export function PlayerSession(props: ownProps) {
   api.story.onStoryUpdate.useSubscription(
     { sessionId: id },
     {
-      onData: ({ action, story }: { action: string; story: any }) => {
-        console.log({ action, story });
+      // @ts-expect-error onData is coming as overload error
+      onData: ({ action, story }: { action: string; story: Story }) => {
         if (action === "story-text-update") {
           setStory({ id: story.id, text: story.title });
         }
@@ -61,42 +72,79 @@ export function PlayerSession(props: ownProps) {
 
   const lastStory = stories?.[stories?.length - 1];
 
-  // const { data: votes } = api.vote.getAllVotes.useQuery(
-  //   {
-  //     sessionCode: id,
-  //     storyId: lastStory?.id,
-  //   },
-  //   {
-  //     refetchInterval: 1000,
-  //   },
-  // );
+  /**
+   * Votes handlers
+   */
 
-  const handleBlur = () => {
-    createStory.mutate({
-      title: des,
-      sessionId: id,
-    });
-  };
+  const { data: votes } = api.vote.getAllVotes.useQuery({
+    sessionCode: id,
+    storyId: story.id || "",
+  });
 
+  const [votesState, setVotesState] = useState(votes || []);
   const createVote = api.vote.createVote.useMutation({
-    onSuccess: (data) => {
-      // console.log(data);
+    onSuccess: (newVote) => {
+      newVote &&
+        setVotesState((prevState) => {
+          const existingVoteIndex = prevState.findIndex(
+            (vote) =>
+              vote.playerId === newVote.playerId &&
+              vote.storyId === newVote.storyId,
+          );
+
+          if (existingVoteIndex !== -1) {
+            const updatedVotes = [...prevState];
+            updatedVotes[existingVoteIndex] = newVote;
+            return updatedVotes;
+          }
+
+          // Add a new vote
+          return [...prevState, newVote];
+        });
     },
   });
 
+  api.vote.onVoteUpdate.useSubscription(
+    { sessionId: id },
+    {
+      // @ts-expect-error overload error
+      onData: ({ action, vote }: { action: string; vote: VoteResponse }) => {
+        if (action === "vote-added") {
+          setVotesState((prevState) => {
+            const existingVoteIndex = prevState.findIndex(
+              (vote) =>
+                vote.playerId === vote.playerId &&
+                vote.storyId === vote.storyId,
+            );
+
+            if (existingVoteIndex !== -1) {
+              const updatedVotes = [...prevState];
+              updatedVotes[existingVoteIndex] = vote;
+              return updatedVotes;
+            }
+
+            // Add a new vote
+            return [...prevState, vote];
+          });
+        }
+      },
+    },
+  );
+
   const handleVote = (voteId: string) => {
-    if (lastStory && currentPlayer) {
-      // console.log({
-      //   sessionCode: id,
-      //   storyId: lastStory?.id,
-      //   playerId: currentPlayer?.id,
-      //   vote: voteId,
-      // });
+    console.log({
+      currentPlayerVote,
+      lastStory,
+      currentPlayer,
+      storyId: story.id,
+    });
+    if (currentPlayer && story.id) {
       createVote.mutate({
         sessionCode: id,
-        storyId: lastStory?.id,
+        storyId: story.id,
         playerId: currentPlayer?.id,
         vote: voteId,
+        voteId: currentPlayerVote?.id ?? undefined,
       });
     }
   };
@@ -108,11 +156,14 @@ export function PlayerSession(props: ownProps) {
     }));
   };
 
-  console.log({ stories });
+  const currentPlayerVote = votesState.find(
+    (v) => v.playerId === currentPlayer?.id,
+  );
+
+  // Effects
   useEffect(() => {
     if (stories && stories.length > 0) {
       const existingStory = stories?.[stories?.length - 1];
-      console.log({ existingStory });
       existingStory &&
         setStory({
           id: existingStory.id,
@@ -131,7 +182,13 @@ export function PlayerSession(props: ownProps) {
     }
   }, [debouncedDescription]);
 
-  console.log({ story });
+  useEffect(() => {
+    if (votes) {
+      setVotesState(votes);
+    }
+  }, [votes]);
+
+  console.log({ story, currentPlayerVote, currentPlayer, votesState });
 
   return (
     <div className="w-full p-2">
@@ -158,36 +215,19 @@ export function PlayerSession(props: ownProps) {
       {isCreator && (
         <div className="mt-4 flex gap-20">
           <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-            Clear votes
+            Show Results
           </button>
           <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-            Show Votes
+            Start Next Round
           </button>
         </div>
       )}
 
-      <div className="mt-4 flex w-1/2 flex-wrap justify-center gap-4">
-        {pokerVotes.map((vote) => (
-          <div
-            key={vote.id}
-            className="flex w-1/6 cursor-pointer items-center justify-center rounded-md border-2 border-gray-300 bg-teal-400 py-3 hover:border-blue-400"
-            onClick={() => handleVote(vote.id)}
-          >
-            {vote.name}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-3">
-        <h2 className="text-xl font-bold">Players</h2>
-        <div>
-          {players?.map((player) => (
-            <div key={player.id} className="mt-4 flex items-center gap-2">
-              <p className="text-xl">{player.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <VotesList
+        currentPlayerVote={currentPlayerVote}
+        handleVote={handleVote}
+      />
+      <PlayerVotes players={players} votesState={votesState} />
     </div>
   );
 }
