@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
 import { z } from "zod";
 
+import { type Story } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { Story } from "@prisma/client";
 
 const storyEvents = new EventEmitter();
 
@@ -36,7 +36,6 @@ export const storyRouter = createTRPCRouter({
           action: string;
           story: Story;
         }) => {
-          console.log({ data });
           if (data.sessionId === input.sessionId) {
             emit.next({ action: data.action, story: data.story });
           }

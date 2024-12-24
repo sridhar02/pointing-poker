@@ -2,10 +2,10 @@ import { create } from "domain";
 import { EventEmitter } from "events";
 import { z } from "zod";
 
+import { type Player } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { Player } from "@prisma/client";
 
 const playerEvents = new EventEmitter();
 
