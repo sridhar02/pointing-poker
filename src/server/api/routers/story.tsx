@@ -17,14 +17,13 @@ export const storyRouter = createTRPCRouter({
           id: input.sessionCode,
         },
       });
-      return (
-        session &&
-        (await ctx.db.story.findMany({
-          where: {
-            sessionId: session.id,
-          },
-        }))
-      );
+      if (!session) return;
+
+      return await ctx.db.story.findMany({
+        where: {
+          sessionId: session.id,
+        },
+      });
     }),
 
   onStoryUpdate: publicProcedure
@@ -64,6 +63,8 @@ export const storyRouter = createTRPCRouter({
         },
       });
 
+      if (!session) return;
+
       let story;
       if (input.storyId) {
         story = await ctx.db.story.update({
@@ -71,14 +72,12 @@ export const storyRouter = createTRPCRouter({
           data: { title: input.title },
         });
       } else {
-        story =
-          session &&
-          (await ctx.db.story.create({
-            data: {
-              title: input.title,
-              sessionId: session.id,
-            },
-          }));
+        story = await ctx.db.story.create({
+          data: {
+            title: input.title,
+            sessionId: session.id,
+          },
+        });
       }
 
       // Emit an event for the newly created player

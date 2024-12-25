@@ -18,15 +18,13 @@ export const playerRouter = createTRPCRouter({
           id: input.sessionCode,
         },
       });
+      if (!session) return;
 
-      return (
-        session &&
-        (await ctx.db.player.findMany({
-          where: {
-            sessionId: session.id,
-          },
-        }))
-      );
+      return await ctx.db.player.findMany({
+        where: {
+          sessionId: session.id,
+        },
+      });
     }),
 
   onPlayerUpdate: publicProcedure
@@ -58,15 +56,14 @@ export const playerRouter = createTRPCRouter({
           id: input.sessionId,
         },
       });
+      if (!session) return;
 
-      const player =
-        session &&
-        (await ctx.db.player.create({
-          data: {
-            name: input.name,
-            sessionId: session.id,
-          },
-        }));
+      const player = await ctx.db.player.create({
+        data: {
+          name: input.name,
+          sessionId: session.id,
+        },
+      });
 
       // Emit an event for the newly created player
       if (player) {
