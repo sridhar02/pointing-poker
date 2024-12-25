@@ -9,28 +9,34 @@ import {
   type Story,
   type Vote,
 } from "@prisma/client";
-import { type inferProcedureOutput } from "@trpc/server";
+import { Unsubscribable } from "@trpc/server/observable";
 
 import { type AppRouter } from "~/server/api/root"; // Path to your app router
 import { api, type RouterOutputs } from "~/trpc/react";
 
 import { PlayerVotes } from "./PlayerVotes";
 import { VotesList } from "./VotesList";
+import { VotingResults } from "./VotingResults";
 
-type VoteResponse = inferProcedureOutput<AppRouter["vote"]["createVote"]>;
+type VoteResponse = RouterOutputs["vote"]["createVote"];
+// type onStoryUpdate = inferSubscriptionOutput["story"]["onStoryUpdate"];
 
 interface ownProps {
   id: string;
   session: Session | null | undefined;
-  players: RouterOutputs["player"]["getAllPlayers"];
+  players: Player[];
   currentPlayer: Player | undefined;
 }
 
 export function PlayerSession(props: ownProps) {
   const { currentPlayer, id, players, session } = props;
 
-  const [story, setStory] = useState<{ id: string | null; text: string }>({
-    id: null,
+  const [showResults, setShowResults] = useState(false);
+  const [story, setStory] = useState<{
+    id: string | undefined;
+    text: string | undefined;
+  }>({
+    id: undefined,
     text: "",
   });
   const [debouncedDescription] = useDebounce(story.text, 500);
@@ -58,14 +64,23 @@ export function PlayerSession(props: ownProps) {
     },
   });
 
+  const handleStory = (data: { action: string; story: Story }) => {
+    const { action, story } = data;
+    if (action === "story-text-update") {
+      setStory({ id: story.id, text: story.title });
+    }
+  };
+
   api.story.onStoryUpdate.useSubscription(
     { sessionId: id },
     {
-      // @ts-expect-error onData is coming as overload error
-      onData: ({ action, story }: { action: string; story: Story }) => {
-        if (action === "story-text-update") {
-          setStory({ id: story.id, text: story.title });
-        }
+      onData: (data) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore for now eliminate this
+        handleStory(data);
+      },
+      onError(err) {
+        console.log("Subscription error: ", err);
       },
     },
   );
@@ -78,43 +93,46 @@ export function PlayerSession(props: ownProps) {
 
   const { data: votes } = api.vote.getAllVotes.useQuery({
     sessionCode: id,
-    storyId: story.id || "",
+    storyId: story.id ?? "",
   });
 
-  const [votesState, setVotesState] = useState(votes || []);
+  const [votesState, setVotesState] = useState<VoteResponse[]>(votes ?? []);
+
   const createVote = api.vote.createVote.useMutation({
     onSuccess: (newVote) => {
-      newVote &&
-        setVotesState((prevState) => {
-          const existingVoteIndex = prevState.findIndex(
-            (vote) =>
-              vote.playerId === newVote.playerId &&
-              vote.storyId === newVote.storyId,
-          );
+      setVotesState((prevState) => {
+        const existingVoteIndex = prevState.findIndex(
+          (vote) =>
+            vote?.playerId === newVote?.playerId &&
+            vote?.storyId === newVote?.storyId,
+        );
+        console.log({ prevState, existingVoteIndex, newVote });
 
-          if (existingVoteIndex !== -1) {
-            const updatedVotes = [...prevState];
-            updatedVotes[existingVoteIndex] = newVote;
-            return updatedVotes;
-          }
+        if (existingVoteIndex !== -1) {
+          const updatedVotes = [...prevState];
+          updatedVotes[existingVoteIndex] = newVote;
+          console.log({ updatedVotes });
+          return updatedVotes;
+        }
 
-          // Add a new vote
-          return [...prevState, newVote];
-        });
+        // Add a new vote
+        return [...prevState, newVote];
+      });
     },
   });
 
   api.vote.onVoteUpdate.useSubscription(
     { sessionId: id },
     {
-      // @ts-expect-error overload error
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore overload error
       onData: ({ action, vote }: { action: string; vote: VoteResponse }) => {
         if (action === "vote-added") {
           setVotesState((prevState) => {
             const existingVoteIndex = prevState.findIndex(
-              (vote) =>
-                vote.playerId === vote.playerId &&
-                vote.storyId === vote.storyId,
+              (item) =>
+                item?.playerId === vote?.playerId &&
+                item?.storyId === vote?.storyId,
             );
 
             if (existingVoteIndex !== -1) {
@@ -157,18 +175,17 @@ export function PlayerSession(props: ownProps) {
   };
 
   const currentPlayerVote = votesState.find(
-    (v) => v.playerId === currentPlayer?.id,
+    (vote) => vote?.playerId === currentPlayer?.id,
   );
 
   // Effects
   useEffect(() => {
     if (stories && stories.length > 0) {
       const existingStory = stories?.[stories?.length - 1];
-      existingStory &&
-        setStory({
-          id: existingStory.id,
-          text: existingStory.title,
-        });
+      setStory({
+        id: existingStory?.id,
+        text: existingStory?.title,
+      });
     }
   }, [stories]);
 
@@ -188,6 +205,10 @@ export function PlayerSession(props: ownProps) {
     }
   }, [votes]);
 
+  const handleNext = () => {
+    console.log("Next round");
+  };
+
   console.log({ story, currentPlayerVote, currentPlayer, votesState });
 
   return (
@@ -195,9 +216,7 @@ export function PlayerSession(props: ownProps) {
       <div className="text-lg text-gray-500">
         Session ID: <span className="text-blue-400">{id}</span>
       </div>
-      <h3 className="my-2 text-xl font-semibold">
-        {currentPlayer?.name} ({currentPlayer?.id})
-      </h3>
+      <h3 className="my-2 text-xl font-semibold">{currentPlayer?.name}</h3>
       <div className="mt-2 flex flex-col gap-1">
         <label htmlFor="" className="text-lg text-gray-500">
           Story Description:
@@ -211,23 +230,27 @@ export function PlayerSession(props: ownProps) {
           disabled={!isCreator}
         />
       </div>
-
-      {isCreator && (
-        <div className="mt-4 flex gap-20">
-          <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-            Show Results
-          </button>
-          <button className="rounded-md bg-blue-400 px-2 py-2 text-white">
-            Start Next Round
-          </button>
-        </div>
-      )}
+      <div className="mt-4 flex gap-20">
+        <button
+          className="rounded-md bg-blue-400 px-2 py-2 text-white"
+          onClick={() => setShowResults(!showResults)}
+        >
+          Show Results
+        </button>
+        <button
+          className="rounded-md bg-blue-400 px-2 py-2 text-white"
+          onClick={handleNext}
+        >
+          Start Next Round
+        </button>
+      </div>
 
       <VotesList
         currentPlayerVote={currentPlayerVote}
         handleVote={handleVote}
       />
       <PlayerVotes players={players} votesState={votesState} />
+      {showResults && <VotingResults votesState={votesState} />}
     </div>
   );
 }

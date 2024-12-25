@@ -34,12 +34,13 @@ export function Session() {
     },
   );
 
-  const [playerList, setPlayerList] = useState(players ?? []);
+  const [playerList, setPlayerList] = useState<Player[]>(players ?? []);
 
   const currentPlayer = players?.find((player) => player.id === playerId);
 
   api.player.onPlayerUpdate.useSubscription(
-    // @ts-expect-error overload error
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore overload error
     { sessionId: session?.id },
     {
       onData: ({ action, player }: { action: string; player: Player }) => {

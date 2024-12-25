@@ -1,8 +1,10 @@
 import { type Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { ToastContainer } from "react-toastify";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
+import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          {children}
+          <ToastContainer />
+        </TRPCReactProvider>
       </body>
     </html>
   );
