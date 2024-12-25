@@ -14,3 +14,16 @@ export const pokerVotes = [
   { id: "12", value: -1, name: "?" },
   // { id: "13", value: "Cup" },
 ];
+
+type item = {
+  id: string;
+  value: number;
+  name: string;
+};
+
+export function calculateAverage(arr: item[] | undefined) {
+  if (!arr) return 0;
+  if (!arr.length) return 0;
+  const sum = arr.reduce((total, item) => total + item.value, 0);
+  return sum / arr.length;
+}

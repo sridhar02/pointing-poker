@@ -2,11 +2,14 @@ import React from "react";
 
 import { type Player } from "@prisma/client";
 
+import { type RouterOutputs } from "~/trpc/react";
+
 import { pokerVotes } from "./session/utils";
+type voteResponse = RouterOutputs["vote"]["createVote"];
 
 interface OwnProps {
   players: Player[] | null | undefined;
-  votesState: any[];
+  votesState: voteResponse[];
 }
 
 export const PlayerVotes = (props: OwnProps) => {
@@ -17,11 +20,12 @@ export const PlayerVotes = (props: OwnProps) => {
       <div>
         {players?.map((player) => {
           const playerVote = votesState.find(
-            (vote) => vote.playerId === player.id,
+            (vote) => vote?.playerId === player.id,
           );
           const finalizedVote = pokerVotes.find(
             (v) => v.id === playerVote?.vote,
           );
+          console.log({ players, votesState, finalizedVote, playerVote });
           return (
             <div key={player.id} className="mt-4 flex items-center gap-2">
               <p className="text-xl">{player.name}</p>
