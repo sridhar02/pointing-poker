@@ -29,7 +29,7 @@ export function Hero() {
   };
 
   return (
-    <div className="flex h-screen flex-col items-center">
+    <div className="flex flex-grow flex-col items-center">
       <div className="m-4 flex h-3/4 w-3/4 flex-col items-center justify-center rounded-md">
         <h1 className="mb-4 mt-3 text-center text-4xl font-bold md:text-4xl">
           Scrum Pointer for Agile Teams
