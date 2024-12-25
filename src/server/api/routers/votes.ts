@@ -32,19 +32,18 @@ export const voteRouter = createTRPCRouter({
           id: input.sessionCode,
         },
       });
+      if (!session) return;
 
-      const allVotes =
-        session &&
-        (await ctx.db.vote.findMany({
-          where: {
-            sessionId: session.id,
-            storyId: input.storyId,
-          },
-          include: {
-            player: true,
-            story: true,
-          },
-        }));
+      const allVotes = await ctx.db.vote.findMany({
+        where: {
+          sessionId: session.id,
+          storyId: input.storyId,
+        },
+        include: {
+          player: true,
+          story: true,
+        },
+      });
       return allVotes;
     }),
 
@@ -85,9 +84,10 @@ export const voteRouter = createTRPCRouter({
           id: input.sessionCode,
         },
       });
+      if (!session) return;
 
       let voteResponse;
-      if (input.voteId && session) {
+      if (input.voteId) {
         voteResponse = await ctx.db.vote.update({
           where: { id: input.voteId },
           data: {
@@ -102,23 +102,21 @@ export const voteRouter = createTRPCRouter({
           },
         });
       } else {
-        voteResponse =
-          session &&
-          (await ctx.db.vote.create({
-            data: {
-              sessionId: session.id,
-              storyId: input.storyId,
-              playerId: input.playerId,
-              vote: input.vote,
-            },
-            include: {
-              player: true, // Include player relation
-              story: true, // Include story relation
-            },
-          }));
+        voteResponse = await ctx.db.vote.create({
+          data: {
+            sessionId: session.id,
+            storyId: input.storyId,
+            playerId: input.playerId,
+            vote: input.vote,
+          },
+          include: {
+            player: true, // Include player relation
+            story: true, // Include story relation
+          },
+        });
       }
 
-      if (voteResponse && session) {
+      if (voteResponse) {
         voteEvents.emit("vote-update", {
           sessionId: session.id,
           storyId: input.storyId,
