@@ -19,8 +19,10 @@ export function Navbar() {
   };
 
   return (
-    <div className="flex items-center justify-between border-b-2 bg-blue-600 p-4 text-white">
-      <h1 className="text-xl font-bold">Scrum Pointer</h1>
+    <div
+      className={`flex items-center justify-between border-b-2 bg-blue-600 p-2 text-white`}
+    >
+      <h1 className="ml-4 text-2xl font-bold">Scrum Pointer</h1>
       {id ? (
         <div className="mr-4 flex items-center gap-6">
           <p>Guest user</p>
