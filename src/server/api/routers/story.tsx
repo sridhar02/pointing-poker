@@ -30,7 +30,7 @@ export const storyRouter = createTRPCRouter({
   onStoryUpdate: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .subscription(({ input }) => {
-      return observable<{ action: string; story: Story }>((emit) => {
+      return observable((emit) => {
         const onStoryUpdate = (data: {
           sessionId: string;
           action: string;
