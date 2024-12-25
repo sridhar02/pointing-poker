@@ -1,11 +1,20 @@
 import { EventEmitter } from "events";
 import { z } from "zod";
 
+import { type Prisma } from "@prisma/client";
+import { type inferRouterOutputs } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
-import { type inferProcedureOutput } from "@trpc/server";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+
 import { AppRouter } from "../root";
+
+type voteResponse = Prisma.VoteGetPayload<{
+  include: {
+    player: true;
+    story: true;
+  };
+}>;
 
 const voteEvents = new EventEmitter();
 
@@ -42,12 +51,12 @@ export const voteRouter = createTRPCRouter({
   onVoteUpdate: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .subscription(({ input }) => {
-      return observable<{ action: string; vote: any }>((emit) => {
+      return observable<{ action: string; vote: voteResponse }>((emit) => {
         const onStoryUpdate = (data: {
           sessionId: string;
           storyId: string;
           action: string;
-          vote: any;
+          vote: voteResponse;
         }) => {
           if (data.sessionId === input.sessionId) {
             emit.next({ action: data.action, vote: data.vote });

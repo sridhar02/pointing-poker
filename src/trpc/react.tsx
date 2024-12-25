@@ -5,10 +5,11 @@ import SuperJSON from "superjson";
 
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  createWSClient,
+  httpBatchLink,
   loggerLink,
+  splitLink,
   unstable_httpBatchStreamLink,
-  wsLink,
+  unstable_httpSubscriptionLink,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
@@ -16,6 +17,7 @@ import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { type AppRouter } from "~/server/api/root";
 
 import { createQueryClient } from "./query-client";
+import { env } from "~/env";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
@@ -43,31 +45,23 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
-// const WS_URL = "ws://localhost:3001";
-
-const wsClient = createWSClient({
-  url: `ws://localhost:3001`,
-  connectionParams: async () => {
-    return {
-      token: "supersecret",
-    };
-  },
-});
+// const API_URL = "http://localhost:3000";
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
     api.createClient({
       links: [
-        wsLink({ client: wsClient, transformer: SuperJSON }),
-        unstable_httpBatchStreamLink({
-          transformer: SuperJSON,
-          url: getBaseUrl() + "/api/trpc",
-          headers: () => {
-            const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
-            return headers;
-          },
+        splitLink({
+          condition: (op) => op.type === "subscription",
+          true: unstable_httpSubscriptionLink({
+            url: `${env.NEXT_PUBLIC_BASE_URL}/api/trpc`,
+            transformer: SuperJSON,
+          }),
+          false: httpBatchLink({
+            url: `${env.NEXT_PUBLIC_BASE_URL}/api/trpc`,
+            transformer: SuperJSON,
+          }),
         }),
         loggerLink({
           enabled: (op) =>

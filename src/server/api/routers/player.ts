@@ -25,13 +25,6 @@ export const playerRouter = createTRPCRouter({
           where: {
             sessionId: session.id,
           },
-          include: {
-            Vote: {
-              include: {
-                story: true,
-              },
-            },
-          },
         }))
       );
     }),
@@ -43,7 +36,7 @@ export const playerRouter = createTRPCRouter({
         const onPlayerUpdate = (data: {
           sessionId: string;
           action: string;
-          player: any;
+          player: Player;
         }) => {
           if (data.sessionId === input.sessionId) {
             emit.next({ action: data.action, player: data.player });
