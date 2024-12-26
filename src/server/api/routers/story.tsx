@@ -47,6 +47,31 @@ export const storyRouter = createTRPCRouter({
       });
     }),
 
+  getActiveStories: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.story.findMany({
+        where: {
+          sessionId: input.sessionId,
+          isCleared: false,
+        },
+      });
+    }),
+
+  getClearedStories: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.story.findMany({
+        where: {
+          sessionId: input.sessionId,
+          isCleared: true,
+        },
+        orderBy: {
+          clearedAt: "desc", // Show the most recently cleared stories first
+        },
+      });
+    }),
+
   createStory: publicProcedure
     .input(
       z.object({
@@ -82,6 +107,7 @@ export const storyRouter = createTRPCRouter({
 
       // Emit an event for the newly created player
       if (story) {
+        console.log(story);
         storyEvents.emit("story-update", {
           sessionId: input.sessionId,
           action: "story-text-update",
