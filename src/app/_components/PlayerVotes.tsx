@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Story, type Player } from "@prisma/client";
+import { type Player,type Story } from "@prisma/client";
 
 import { type RouterOutputs } from "~/trpc/react";
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { Player } from "@prisma/client";
 import { useParams } from "next/navigation";
-import { toast } from "react-toastify";
-import useLocalStorage from "../hooks/useLocalStorage";
 import { useRouter } from "next/navigation";
+
+import { type Player } from "@prisma/client";
+
+import useLocalStorage from "../hooks/useLocalStorage";
 
 export function Navbar() {
   const { id } = useParams();

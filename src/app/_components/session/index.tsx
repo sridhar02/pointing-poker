@@ -15,7 +15,7 @@ export function Session() {
   const { id } = useParams();
   const [player, setPlayer] = useLocalStorage<Player>("player", undefined);
 
-  const { data: session, isLoading } = api.session.getCurrentSession.useQuery(
+  const { data: session } = api.session.getCurrentSession.useQuery(
     {
       id: id as string,
     },

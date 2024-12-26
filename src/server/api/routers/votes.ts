@@ -2,12 +2,9 @@ import { EventEmitter } from "events";
 import { z } from "zod";
 
 import { type Prisma } from "@prisma/client";
-import { type inferRouterOutputs } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-
-import { AppRouter } from "../root";
 
 type voteResponse = Prisma.VoteGetPayload<{
   include: {

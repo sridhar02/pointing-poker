@@ -1,8 +1,6 @@
 import {
   Bar,
   BarChart,
-  CartesianGrid,
-  Legend,
   Rectangle,
   ResponsiveContainer,
   Tooltip,
@@ -21,7 +19,7 @@ type voteGraphProps = {
 
 export function VotesGraph(props: voteGraphProps) {
   const { allVotes, story } = props;
-  const { voteCounts, totalVotes, averageVote } = useVoteAnalysis(allVotes);
+  const { voteCounts, averageVote } = useVoteAnalysis(allVotes);
 
   const graphData = Object.entries(voteCounts).map(([key, value]) => ({
     countValue: value,

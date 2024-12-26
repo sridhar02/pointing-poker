@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Player } from "@prisma/client";
+import { type Player } from "@prisma/client";
 
 import { api } from "~/trpc/react";
 
@@ -11,8 +11,7 @@ import useLocalStorage from "../hooks/useLocalStorage";
 
 export function Hero() {
   const router = useRouter();
-  const [player, setPlayer] = useLocalStorage<Player>("player", undefined);
-  // const [, setPlayerId] = useLocalStorage<string>("createdByPlayerId", "");
+  const [_, setPlayer] = useLocalStorage<Player>("player", undefined);
 
   const [name, setName] = useState("");
 
