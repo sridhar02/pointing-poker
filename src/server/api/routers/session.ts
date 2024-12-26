@@ -1,6 +1,10 @@
+import { observable } from "@trpc/server/observable";
+import { EventEmitter } from "stream";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+
+const sessionEvents = new EventEmitter();
 
 export const sessionRouter = createTRPCRouter({
   createSession: publicProcedure
@@ -31,6 +35,53 @@ export const sessionRouter = createTRPCRouter({
         player,
       };
     }),
+
+  onStoryClear: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .subscription(({ input }) => {
+      return observable<{ story: { id: string; title: string } }>((emit) => {
+        const onStoryClear = (data: {
+          sessionId: string;
+          story: { id: string; title: string };
+        }) => {
+          if (data.sessionId === input.sessionId) {
+            emit.next(data);
+          }
+        };
+
+        sessionEvents.on("story-cleared", onStoryClear);
+
+        return () => {
+          sessionEvents.off("story-cleared", onStoryClear);
+        };
+      });
+    }),
+
+  clearDescription: publicProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        storyId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const story = await ctx.db.story.update({
+        where: { id: input.storyId },
+        data: {
+          isCleared: true,
+          clearedAt: new Date(),
+        },
+      });
+
+      // Emit an event to notify all users
+      sessionEvents.emit("story-cleared", {
+        sessionId: input.sessionId,
+        story: { id: story.id, title: story.title },
+      });
+
+      return { success: true, story };
+    }),
+
   getCurrentSession: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
