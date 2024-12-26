@@ -28,14 +28,16 @@ model Player {
 }
 
 model Story {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     sessionId String
     title     String
     link      String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    session   Session  @relation(fields: [sessionId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    session   Session   @relation(fields: [sessionId], references: [id])
     Vote      Vote[]
+    isCleared Boolean   @default(false) // New field to track cleared state
+    clearedAt DateTime? // Optional field to track when the story was cleared
 }
 
 model Vote {
