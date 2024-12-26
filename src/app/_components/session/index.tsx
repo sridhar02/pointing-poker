@@ -13,7 +13,7 @@ import { PlayerSession } from "../PlayerSession";
 
 export function Session() {
   const { id } = useParams();
-  const [playerId, setPlayerId] = useLocalStorage<string>("playerId", "");
+  const [player, setPlayer] = useLocalStorage<Player>("player", undefined);
 
   const { data: session, isLoading } = api.session.getCurrentSession.useQuery(
     {
@@ -35,8 +35,7 @@ export function Session() {
   );
 
   const [playerList, setPlayerList] = useState<Player[]>(players ?? []);
-
-  const currentPlayer = players?.find((player) => player.id === playerId);
+  const currentPlayer = player;
 
   api.player.onPlayerUpdate.useSubscription(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -64,7 +63,7 @@ export function Session() {
 
   return (
     <div className="w-full bg-white">
-      {playerId ? (
+      {currentPlayer ? (
         <PlayerSession
           id={id as string}
           players={playerList}
@@ -73,7 +72,7 @@ export function Session() {
         />
       ) : (
         <>
-          <JoinSession id={id as string} setPlayerId={setPlayerId} />
+          <JoinSession id={id as string} setPlayer={setPlayer} />
         </>
       )}
     </div>

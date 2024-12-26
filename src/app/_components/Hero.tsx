@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Player } from "@prisma/client";
+
 import { api } from "~/trpc/react";
 
 import useLocalStorage from "../hooks/useLocalStorage";
 
 export function Hero() {
   const router = useRouter();
-  const [playerId, setPlayerId] = useLocalStorage<string>("playerId", "");
+  const [player, setPlayer] = useLocalStorage<Player>("player", undefined);
   // const [, setPlayerId] = useLocalStorage<string>("createdByPlayerId", "");
 
   const [name, setName] = useState("");
@@ -18,7 +20,7 @@ export function Hero() {
     onSuccess: (data) => {
       const { session, player } = data;
       setName("");
-      setPlayerId(player.id);
+      setPlayer(player);
       router.push(`/session/${session.id}`);
     },
   });
