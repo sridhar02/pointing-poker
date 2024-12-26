@@ -42,22 +42,33 @@ export function JoinSession(props: ownProps) {
   };
 
   return (
-    <div className="flex w-full justify-between bg-white">
-      <form onSubmit={handleSubmit} className="mt-4 flex w-full gap-4">
-        <input
-          className="w-full rounded-md border-2 border-gray-300 p-2"
-          type="text"
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setName(e.target.value)
-          }
-          required
-        />
-        <button className="w-1/2 rounded-md bg-blue-500 p-2 text-white">
-          Join Session
-        </button>
-      </form>
+    <div className="flex w-full flex-col bg-white">
+      <div className="m-4 flex h-3/4 w-3/4 flex-col items-center justify-center gap-2 rounded-md">
+        <h1 className="mb-4 mt-3 text-center text-4xl font-bold md:text-4xl">
+          Welcome to scrum Pointer
+        </h1>
+        <p className="text-md mb-6">
+          Easy-to-use and fun story point estimations.
+        </p>
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col items-center justify-center gap-6"
+        >
+          <input
+            className="w-full max-w-md rounded-lg border-2 border-gray-300 p-2"
+            type="text"
+            placeholder="Enter your name"
+            value={name}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setName(e.target.value)
+            }
+            required
+          />
+          <button className="w-1/2 rounded-md bg-blue-500 p-2 text-white">
+            Join Session
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

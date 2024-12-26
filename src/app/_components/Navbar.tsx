@@ -1,21 +1,19 @@
 "use client";
 
+import { Player } from "@prisma/client";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { id } = useParams();
+  const router = useRouter();
 
-  const handleInvite = async () => {
-    const currentUrl = window.location.href; // Get the current URL
-    try {
-      await navigator.clipboard.writeText(currentUrl); // Copy to clipboard
-      toast("URL copied to clipboard!", {
-        position: "bottom-right",
-      }); // Show success toast
-    } catch (error) {
-      toast.error("Failed to copy URL. Please try again."); // Show error toast
-    }
+  const [player] = useLocalStorage<Player>("player", undefined);
+  const handleSignOut = () => {
+    localStorage.removeItem("player");
+    router.push("/");
   };
 
   return (
@@ -25,13 +23,15 @@ export function Navbar() {
       <h1 className="ml-4 text-2xl font-bold">Scrum Pointer</h1>
       {id ? (
         <div className="mr-4 flex items-center gap-6">
-          <p>Guest user</p>
-          <button> Sign out</button>
+          <p className="text-lg">
+            {player?.name} <span className="text-sm">(Guest user)</span>
+          </p>
+
           <button
-            className="cursor-pointer rounded-md border-2 bg-white p-2 px-6 font-medium text-blue-500"
-            onClick={handleInvite}
+            className="cursor-pointer rounded-md border-2 p-1 px-4"
+            onClick={handleSignOut}
           >
-            + Invite Players
+            Sign out
           </button>
         </div>
       ) : (
