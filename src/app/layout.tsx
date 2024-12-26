@@ -6,6 +6,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Scrum Pointer Agile Planning Made Simple",
@@ -25,6 +26,11 @@ export default function RootLayout({
           <ToastContainer />
         </TRPCReactProvider>
       </body>
+      <Script
+        strategy="afterInteractive"
+        src="https://analytics.vramana.com/script.js"
+        data-website-id="6907d82c-6420-4aa1-837d-f43968fb5c26"
+      ></Script>
     </html>
   );
 }
