@@ -2,17 +2,17 @@
 
 import { type ChangeEvent, useState } from "react";
 
-import { api } from "~/trpc/react";
+import { type Player } from "@prisma/client";
 
-import useLocalStorage from "../hooks/useLocalStorage";
+import { api } from "~/trpc/react";
 
 interface ownProps {
   id: string;
-  setPlayerId: (id: string) => void;
+  setPlayer: (data: Player) => void;
 }
 
 export function JoinSession(props: ownProps) {
-  const { id, setPlayerId } = props;
+  const { id, setPlayer } = props;
   const [name, setName] = useState("");
 
   const { data: session, isLoading } = api.session.getCurrentSession.useQuery({
@@ -21,8 +21,7 @@ export function JoinSession(props: ownProps) {
 
   const createPlayer = api.player.createPlayer.useMutation({
     onSuccess: (data) => {
-      console.log(data);
-      if (data) setPlayerId(data.id);
+      if (data) setPlayer(data);
     },
   });
 

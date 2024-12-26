@@ -40,7 +40,7 @@ export function PlayerSession(props: ownProps) {
     text: "",
   });
   const [debouncedDescription] = useDebounce(story.text, 500);
-  const isCreator = currentPlayer?.id === session?.createdByPlayerId;
+  // const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
   // Story handlers
   const { data: stories } = api.story.getAllStories.useQuery(
@@ -48,7 +48,7 @@ export function PlayerSession(props: ownProps) {
       sessionCode: id,
     },
     {
-      enabled: id !== null && !isCreator,
+      enabled: id !== null,
     },
   );
 
@@ -106,12 +106,9 @@ export function PlayerSession(props: ownProps) {
             vote?.playerId === newVote?.playerId &&
             vote?.storyId === newVote?.storyId,
         );
-        console.log({ prevState, existingVoteIndex, newVote });
-
         if (existingVoteIndex !== -1) {
           const updatedVotes = [...prevState];
           updatedVotes[existingVoteIndex] = newVote;
-          console.log({ updatedVotes });
           return updatedVotes;
         }
 
@@ -150,12 +147,6 @@ export function PlayerSession(props: ownProps) {
   );
 
   const handleVote = (voteId: string) => {
-    console.log({
-      currentPlayerVote,
-      lastStory,
-      currentPlayer,
-      storyId: story.id,
-    });
     if (currentPlayer && story.id) {
       createVote.mutate({
         sessionCode: id,
@@ -209,8 +200,6 @@ export function PlayerSession(props: ownProps) {
     console.log("Next round");
   };
 
-  console.log({ story, currentPlayerVote, currentPlayer, votesState });
-
   return (
     <div className="w-full p-2">
       <div className="text-lg text-gray-500">
@@ -227,7 +216,6 @@ export function PlayerSession(props: ownProps) {
           className="w-full rounded-md border-2 border-gray-400 p-2"
           value={story.text}
           onChange={handleTextChange}
-          disabled={!isCreator}
         />
       </div>
       <div className="mt-4 flex gap-20">

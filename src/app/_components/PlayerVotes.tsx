@@ -25,7 +25,6 @@ export const PlayerVotes = (props: OwnProps) => {
           const finalizedVote = pokerVotes.find(
             (v) => v.id === playerVote?.vote,
           );
-          console.log({ players, votesState, finalizedVote, playerVote });
           return (
             <div key={player.id} className="mt-4 flex items-center gap-2">
               <p className="text-xl">{player.name}</p>
