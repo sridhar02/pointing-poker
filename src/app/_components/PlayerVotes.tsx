@@ -25,7 +25,6 @@ export const PlayerVotes = (props: OwnProps) => {
     );
 
   const average = calculateAverage(mappedVotes);
-  console.log({ clearedStories });
   return (
     <div className="mt-3">
       <div className="flex gap-4">

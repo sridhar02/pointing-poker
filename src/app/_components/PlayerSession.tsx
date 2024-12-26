@@ -57,7 +57,6 @@ export function PlayerSession(props: ownProps) {
     { sessionId: id },
     {
       onData: (data) => {
-        console.log("Story update: ", data);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore for now eliminate this
         handleStory(data);
@@ -164,7 +163,6 @@ export function PlayerSession(props: ownProps) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore overload error
       onData: ({ story }) => {
-        console.log(`Story cleared: ${story.title}`);
         setVotesState([]);
         setStory({
           id: undefined,

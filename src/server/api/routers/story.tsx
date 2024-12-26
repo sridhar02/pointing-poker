@@ -107,7 +107,6 @@ export const storyRouter = createTRPCRouter({
 
       // Emit an event for the newly created player
       if (story) {
-        console.log(story);
         storyEvents.emit("story-update", {
           sessionId: input.sessionId,
           action: "story-text-update",
