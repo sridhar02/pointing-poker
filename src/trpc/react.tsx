@@ -8,7 +8,6 @@ import {
   httpBatchLink,
   loggerLink,
   splitLink,
-  unstable_httpBatchStreamLink,
   unstable_httpSubscriptionLink,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
@@ -45,7 +44,6 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
-// const API_URL = "http://localhost:3000";
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
@@ -81,8 +79,8 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   );
 }
 
-function getBaseUrl() {
-  if (typeof window !== "undefined") return window.location.origin;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return `http://localhost:${process.env.PORT ?? 3000}`;
-}
+// function getBaseUrl() {
+//   if (typeof window !== "undefined") return window.location.origin;
+//   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+//   return `http://localhost:${process.env.PORT ?? 3000}`;
+// }

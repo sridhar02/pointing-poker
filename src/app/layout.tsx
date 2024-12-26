@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import { ToastContainer } from "react-toastify";
 
@@ -6,7 +7,6 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
-import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Scrum Pointer Agile Planning Made Simple",

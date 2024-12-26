@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { type Player, type Session, type Story } from "@prisma/client";
 
@@ -10,7 +10,6 @@ import { api, type RouterOutputs } from "~/trpc/react";
 
 import { PlayerVotes } from "./PlayerVotes";
 import { VotesList } from "./VotesList";
-import { toast } from "react-toastify";
 
 type VoteResponse = RouterOutputs["vote"]["createVote"];
 interface ownProps {
@@ -21,12 +20,10 @@ interface ownProps {
 }
 
 export function PlayerSession(props: ownProps) {
-  const queryClient = useQueryClient();
   const utils = api.useUtils();
 
-  const { currentPlayer, id, players, session } = props;
+  const { currentPlayer, id, players } = props;
 
-  const [showResults, setShowResults] = useState(false);
   const [story, setStory] = useState<{
     id: string | undefined;
     text: string | undefined;
@@ -35,18 +32,8 @@ export function PlayerSession(props: ownProps) {
     text: "",
   });
   const [debouncedDescription] = useDebounce(story.text, 600);
-  // const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
   // Story handlers
-  const { data: stories } = api.story.getAllStories.useQuery(
-    {
-      sessionCode: id,
-    },
-    {
-      enabled: id !== null,
-    },
-  );
-
   const createStory = api.story.createStory.useMutation({
     onSuccess: (data) => {
       if (data?.id) {
@@ -81,7 +68,7 @@ export function PlayerSession(props: ownProps) {
     },
   );
 
-  const lastStory = stories?.[stories?.length - 1];
+  // const lastStory = stories?.[stories?.length - 1];
 
   /**
    * Votes handlers
@@ -167,9 +154,6 @@ export function PlayerSession(props: ownProps) {
 
   // clear story
   const clearStory = api.session.clearDescription.useMutation();
-  const { data: activeStories } = api.story.getActiveStories.useQuery({
-    sessionId: id,
-  });
   const { data: clearedStories } = api.story.getClearedStories.useQuery({
     sessionId: id,
   });
@@ -186,7 +170,14 @@ export function PlayerSession(props: ownProps) {
           id: undefined,
           text: "",
         });
-        utils.story.getClearedStories.invalidate({ sessionId: id });
+        utils.story.getClearedStories
+          .invalidate({ sessionId: id })
+          .then(() => {
+            // No return value here, ensuring the function adheres to the void return type.
+          })
+          .catch((error) => {
+            console.error("Error invalidating stories:", error);
+          });
       },
       onError: (error) => {
         console.error("Subscription error:", error);
@@ -213,7 +204,7 @@ export function PlayerSession(props: ownProps) {
         storyId: story.id ? story.id : undefined,
       });
     }
-  }, [debouncedDescription]);
+  }, [debouncedDescription, id]);
 
   useEffect(() => {
     if (votes) {
@@ -227,7 +218,14 @@ export function PlayerSession(props: ownProps) {
         { sessionId: id, storyId: story?.id },
         {
           onSuccess: () => {
-            utils.story.getClearedStories.invalidate({ sessionId: id });
+            utils.story.getClearedStories
+              .invalidate({ sessionId: id })
+              .then(() => {
+                // No return value here, ensuring the function adheres to the void return type.
+              })
+              .catch((error) => {
+                console.error("Error invalidating stories:", error);
+              });
           },
         },
       );
