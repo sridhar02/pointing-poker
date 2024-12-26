@@ -2,25 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
+import { useQueryClient } from "@tanstack/react-query";
 
-import {
-  type Player,
-  type Session,
-  type Story,
-  type Vote,
-} from "@prisma/client";
-import { Unsubscribable } from "@trpc/server/observable";
+import { type Player, type Session, type Story } from "@prisma/client";
 
-import { type AppRouter } from "~/server/api/root"; // Path to your app router
 import { api, type RouterOutputs } from "~/trpc/react";
 
 import { PlayerVotes } from "./PlayerVotes";
 import { VotesList } from "./VotesList";
-import { VotingResults } from "./VotingResults";
+import { toast } from "react-toastify";
 
 type VoteResponse = RouterOutputs["vote"]["createVote"];
-// type onStoryUpdate = inferSubscriptionOutput["story"]["onStoryUpdate"];
-
 interface ownProps {
   id: string;
   session: Session | null | undefined;
@@ -29,6 +21,9 @@ interface ownProps {
 }
 
 export function PlayerSession(props: ownProps) {
+  const queryClient = useQueryClient();
+  const utils = api.useUtils();
+
   const { currentPlayer, id, players, session } = props;
 
   const [showResults, setShowResults] = useState(false);
@@ -39,7 +34,7 @@ export function PlayerSession(props: ownProps) {
     id: undefined,
     text: "",
   });
-  const [debouncedDescription] = useDebounce(story.text, 500);
+  const [debouncedDescription] = useDebounce(story.text, 600);
   // const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
   // Story handlers
@@ -75,6 +70,7 @@ export function PlayerSession(props: ownProps) {
     { sessionId: id },
     {
       onData: (data) => {
+        console.log("Story update: ", data);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore for now eliminate this
         handleStory(data);
@@ -169,16 +165,45 @@ export function PlayerSession(props: ownProps) {
     (vote) => vote?.playerId === currentPlayer?.id,
   );
 
+  // clear story
+  const clearStory = api.session.clearDescription.useMutation();
+  const { data: activeStories } = api.story.getActiveStories.useQuery({
+    sessionId: id,
+  });
+  const { data: clearedStories } = api.story.getClearedStories.useQuery({
+    sessionId: id,
+  });
+
+  api.session.onStoryClear.useSubscription(
+    { sessionId: id },
+    {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore overload error
+      onData: ({ story }) => {
+        console.log(`Story cleared: ${story.title}`);
+        setVotesState([]);
+        setStory({
+          id: undefined,
+          text: "",
+        });
+        utils.story.getClearedStories.invalidate({ sessionId: id });
+      },
+      onError: (error) => {
+        console.error("Subscription error:", error);
+      },
+    },
+  );
+
   // Effects
-  useEffect(() => {
-    if (stories && stories.length > 0) {
-      const existingStory = stories?.[stories?.length - 1];
-      setStory({
-        id: existingStory?.id,
-        text: existingStory?.title,
-      });
-    }
-  }, [stories]);
+  // useEffect(() => {
+  //   if (stories && stories.length > 0) {
+  //     const existingStory = stories?.[stories?.length - 1];
+  //     setStory({
+  //       id: existingStory?.id,
+  //       text: existingStory?.title,
+  //     });
+  //   }
+  // }, [stories]);
 
   useEffect(() => {
     if (debouncedDescription && id) {
@@ -196,14 +221,47 @@ export function PlayerSession(props: ownProps) {
     }
   }, [votes]);
 
-  const handleNext = () => {
-    console.log("Next round");
+  const handleClear = () => {
+    if (story?.id) {
+      clearStory.mutate(
+        { sessionId: id, storyId: story?.id },
+        {
+          onSuccess: () => {
+            utils.story.getClearedStories.invalidate({ sessionId: id });
+          },
+        },
+      );
+    }
+    setVotesState([]);
+    setStory({
+      id: undefined,
+      text: "",
+    });
+  };
+  const handleInvite = async () => {
+    const currentUrl = window && window.location.href; // Get the current URL
+    try {
+      await navigator.clipboard.writeText(currentUrl); // Copy to clipboard
+      toast("URL copied to clipboard!", {
+        position: "bottom-right",
+      });
+    } catch (error) {
+      toast.error("Failed to copy URL. Please try again."); // Show error toast
+    }
   };
 
   return (
     <div className="w-full p-2">
-      <div className="text-lg text-gray-500">
-        Session ID: <span className="text-blue-400">{id}</span>
+      <div className="flex items-center justify-between">
+        <div className="text-lg text-gray-500">
+          Session ID: <span className="text-blue-400">{id}</span>
+        </div>
+        <button
+          className="cursor-pointer rounded-md border-2 bg-blue-500 p-2 px-6 font-medium text-white"
+          onClick={handleInvite}
+        >
+          + Invite Players
+        </button>
       </div>
       <h3 className="my-2 text-xl font-semibold">{currentPlayer?.name}</h3>
       <div className="mt-2 flex flex-col gap-1">
@@ -221,15 +279,9 @@ export function PlayerSession(props: ownProps) {
       <div className="mt-4 flex gap-20">
         <button
           className="rounded-md bg-blue-400 px-2 py-2 text-white"
-          onClick={() => setShowResults(!showResults)}
+          onClick={handleClear}
         >
-          Show Results
-        </button>
-        <button
-          className="rounded-md bg-blue-400 px-2 py-2 text-white"
-          onClick={handleNext}
-        >
-          Start Next Round
+          Clear Votes
         </button>
       </div>
 
@@ -237,8 +289,11 @@ export function PlayerSession(props: ownProps) {
         currentPlayerVote={currentPlayerVote}
         handleVote={handleVote}
       />
-      <PlayerVotes players={players} votesState={votesState} />
-      {showResults && <VotingResults votesState={votesState} />}
+      <PlayerVotes
+        players={players}
+        votesState={votesState}
+        clearedStories={clearedStories}
+      />
     </div>
   );
 }
