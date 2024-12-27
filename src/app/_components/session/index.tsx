@@ -71,9 +71,7 @@ export function Session() {
           session={session}
         />
       ) : (
-        <>
-          <JoinSession id={id as string} setPlayer={setPlayer} />
-        </>
+        <JoinSession id={id as string} setPlayer={setPlayer} />
       )}
     </div>
   );

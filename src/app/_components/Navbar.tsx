@@ -81,17 +81,19 @@ export function Navbar() {
       {!isMobile && (
         <div className="mr-4 hidden items-center gap-6 md:flex">
           {player && (
-            <p className="text-lg">
-              {player?.name} <span className="text-sm">(Guest user)</span>
-            </p>
-          )}
+            <>
+              <p className="text-lg">
+                {player?.name} <span className="text-sm">(Guest user)</span>
+              </p>
 
-          <button
-            className="cursor-pointer rounded-md border-2 p-1 px-4"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </button>
+              <button
+                className="cursor-pointer rounded-md border-2 p-1 px-4"
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
