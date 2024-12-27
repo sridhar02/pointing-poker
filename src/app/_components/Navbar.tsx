@@ -13,8 +13,7 @@ export function Navbar() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  const [player] = useLocalStorage<Player>("player", undefined);
+  const [player, setPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
     const updateIsMobile = () => {
@@ -26,6 +25,11 @@ export function Navbar() {
     window.addEventListener("resize", updateIsMobile);
 
     return () => window.removeEventListener("resize", updateIsMobile);
+  }, []);
+
+  useEffect(() => {
+    const storedPlayer = JSON.parse(localStorage.getItem("player") || "null");
+    setPlayer(storedPlayer);
   }, []);
 
   const handleSignOut = () => {
