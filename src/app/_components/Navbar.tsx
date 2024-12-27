@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { type Player } from "@prisma/client";
+import SignOutComponent from "./SignOutComponent";
 
 export function Navbar() {
   const router = useRouter();
@@ -88,12 +89,13 @@ export function Navbar() {
                 {player?.name} <span className="text-sm">(Guest Player)</span>
               </p>
 
-              <button
+              {/* <button
                 className="cursor-pointer rounded-md border-2 p-1 px-4"
                 onClick={handleSignOut}
               >
                 Sign out
-              </button>
+              </button> */}
+              <SignOutComponent handleSignOut={handleSignOut} />
             </>
           )}
         </div>
