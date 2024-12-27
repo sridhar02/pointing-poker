@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Session {
-    id                String   @id @default(uuid())
+    id                String   @id @unique
     createdAt         DateTime @default(now())
     updatedAt         DateTime @updatedAt
     createdByPlayerId String?
