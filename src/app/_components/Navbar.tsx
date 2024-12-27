@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 import { type Player } from "@prisma/client";
 
 import useLocalStorage from "../hooks/useLocalStorage";
-import { useEffect, useState } from "react";
 
 export function Navbar() {
   const { id } = useParams();
@@ -28,7 +28,9 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const storedPlayer = JSON.parse(localStorage.getItem("player") || "null");
+    const storedPlayer = JSON.parse(
+      localStorage.getItem("player") ?? "null",
+    ) as Player;
     setPlayer(storedPlayer);
   }, []);
 

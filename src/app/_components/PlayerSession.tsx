@@ -310,8 +310,8 @@ export function PlayerSession(props: ownProps) {
               {/* Tooltip */}
               {showTooltip && (
                 <div className="absolute left-6 top-0 w-64 rounded-md bg-gray-700 p-2 text-sm text-white shadow-md">
-                  Clicking "Clear Votes" will reset all current votes for this
-                  story and move the story to the history section for reference.
+                  {`Clicking "Clear Votes" will reset all current votes for this
+                  story and move the story to the history section for reference.`}
                 </div>
               )}
             </div>
