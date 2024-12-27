@@ -11,14 +11,15 @@ interface OwnProps {
   players: Player[] | null | undefined;
   votesState: voteResponse[];
   clearedStories: Story[] | undefined;
+  currentPlayer: Player | undefined;
 }
 
 export const PlayerVotes = (props: OwnProps) => {
-  const { players, votesState, clearedStories } = props;
+  const { players, votesState, clearedStories, currentPlayer } = props;
   const votesArray = votesState?.map((vote) => vote?.vote) ?? [];
 
   const mappedVotes = votesArray
-    .map((vote) => pokerVotes.find((v) => v.id === vote))
+    .map((vote) => pokerVotes.find((v) => v.id === vote && v.value !== -1))
     .filter(
       (voteObj): voteObj is { id: string; value: number; name: string } =>
         !!voteObj,
@@ -28,9 +29,9 @@ export const PlayerVotes = (props: OwnProps) => {
   return (
     <div className="mt-3 flex flex-col justify-center gap-4 md:flex-row">
       <div className="w-full md:w-1/2">
-        <div className="flex flex-col justify-between gap-2">
+        <div className="flex flex-col justify-between">
           <h2 className="mt-4 text-xl font-bold">Players & votes </h2>
-          <div className="flex flex-col gap-1 text-lg">
+          <div className="flex flex-col text-lg">
             <p className="font-semibold text-gray-500">
               Average: {average ? average.toFixed(2) : "No votes yet"}{" "}
             </p>
@@ -58,13 +59,20 @@ export const PlayerVotes = (props: OwnProps) => {
               const finalizedVote = pokerVotes.find(
                 (v) => v.id === playerVote?.vote,
               );
+
+              // const isCreator = currentPlayer?.id === player.id;
+
               return (
                 <tr key={player.id} className="hover:bg-gray-100">
                   <td className="border border-gray-300 px-4 py-2">
                     {player.name}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {playerVote ? finalizedVote?.value : "No vote yet"}
+                    {playerVote
+                      ? finalizedVote?.value === -1
+                        ? "?"
+                        : finalizedVote?.value
+                      : "No vote yet"}
                   </td>
                 </tr>
               );

@@ -67,7 +67,7 @@ export function Navbar() {
         <div className="flex items-center justify-between gap-6 p-1">
           {player && (
             <p className="text-lg">
-              {player?.name} <span className="text-sm">(Guest user)</span>
+              {player?.name} <span className="text-sm">(Guest Player)</span>
             </p>
           )}
 
@@ -85,7 +85,7 @@ export function Navbar() {
           {player && (
             <>
               <p className="text-lg">
-                {player?.name} <span className="text-sm">(Guest user)</span>
+                {player?.name} <span className="text-sm">(Guest Player)</span>
               </p>
 
               <button

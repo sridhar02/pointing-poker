@@ -45,7 +45,6 @@ export function PlayerSession(props: ownProps) {
         setStory((prev) => ({
           ...prev,
           id: data.id,
-          text: data.title, // Update the story ID after creation
         }));
       }
     },
@@ -86,22 +85,13 @@ export function PlayerSession(props: ownProps) {
   const [votesState, setVotesState] = useState<VoteResponse[]>(votes ?? []);
 
   const createVote = api.vote.createVote.useMutation({
-    onSuccess: (newVote) => {
-      setVotesState((prevState) => {
-        const existingVoteIndex = prevState.findIndex(
-          (vote) =>
-            vote?.playerId === newVote?.playerId &&
-            vote?.storyId === newVote?.storyId,
-        );
-        if (existingVoteIndex !== -1) {
-          const updatedVotes = [...prevState];
-          updatedVotes[existingVoteIndex] = newVote;
-          return updatedVotes;
-        }
-
-        // Add a new vote
-        return [...prevState, newVote];
-      });
+    onSuccess: () => {
+      utils.vote.getAllVotes
+        .invalidate({ storyId: story.id, sessionCode: id })
+        .then(() => {})
+        .catch((error) => {
+          console.error("Error invalidating votes:", error);
+        });
     },
   });
 
@@ -112,22 +102,12 @@ export function PlayerSession(props: ownProps) {
       // @ts-ignore overload error
       onData: ({ action, vote }: { action: string; vote: VoteResponse }) => {
         if (action === "vote-added") {
-          setVotesState((prevState) => {
-            const existingVoteIndex = prevState.findIndex(
-              (item) =>
-                item?.playerId === vote?.playerId &&
-                item?.storyId === vote?.storyId,
-            );
-
-            if (existingVoteIndex !== -1) {
-              const updatedVotes = [...prevState];
-              updatedVotes[existingVoteIndex] = vote;
-              return updatedVotes;
-            }
-
-            // Add a new vote
-            return [...prevState, vote];
-          });
+          utils.vote.getAllVotes
+            .invalidate({ storyId: story.id, sessionCode: id })
+            .then(() => {})
+            .catch((error) => {
+              console.error("Error invalidating votes:", error);
+            });
         }
       },
     },
@@ -145,7 +125,7 @@ export function PlayerSession(props: ownProps) {
     }
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStory((prev) => ({
       ...prev,
       text: e.target.value,
@@ -200,7 +180,7 @@ export function PlayerSession(props: ownProps) {
   // }, [stories]);
 
   useEffect(() => {
-    if (debouncedDescription && id) {
+    if (debouncedDescription && debouncedDescription?.trim() !== "" && id) {
       createStory.mutate({
         title: debouncedDescription,
         sessionId: id,
@@ -254,24 +234,18 @@ export function PlayerSession(props: ownProps) {
   return (
     <div className="p-2 px-4">
       <div className="mt-2 flex flex-col gap-1">
-        <div className="flex flex-col justify-start md:flex-row md:items-center md:justify-between">
-          <div className="text-lg text-gray-500">
-            Session ID: <span className="text-blue-400">{id}</span>
-          </div>
-          <div className="mt-2 w-1/2 md:mt-0 md:w-1/4">
-            <button
-              className="cursor-pointer rounded-md border-2 bg-blue-500 p-2 font-medium text-white md:px-6"
-              onClick={handleInvite}
-            >
-              + Invite Players
-            </button>
-          </div>
+        <div className="flex justify-end md:flex-row md:items-center">
+          <button
+            className="w-1/3 cursor-pointer rounded-md border-2 bg-blue-500 p-2 font-medium text-white md:w-1/4 md:px-6"
+            onClick={handleInvite}
+          >
+            + Invite Players
+          </button>
         </div>
-        <h3 className="my-2 text-xl font-semibold">{currentPlayer?.name}</h3>
         <label htmlFor="" className="text-lg text-gray-500">
           Story Description:
         </label>
-        <textarea
+        <input
           name="description"
           id=""
           className="mw-full rounded-md border-2 border-gray-400 p-2"
@@ -281,14 +255,8 @@ export function PlayerSession(props: ownProps) {
         />
         {isCreator && (
           <div className="flex items-center justify-end">
-            <button
-              className="mt-4 w-1/3 rounded-md bg-blue-400 px-2 py-2 text-white md:w-1/4"
-              onClick={handleClear}
-            >
-              Clear Votes
-            </button>
             <div
-              className="relative flex items-center"
+              className="relative mr-3 flex items-center"
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
             >
@@ -315,6 +283,12 @@ export function PlayerSession(props: ownProps) {
                 </div>
               )}
             </div>
+            <button
+              className="mt-4 w-1/3 rounded-md bg-blue-400 px-2 py-2 text-white md:w-1/4"
+              onClick={handleClear}
+            >
+              Clear Votes
+            </button>
           </div>
         )}
       </div>
@@ -327,6 +301,7 @@ export function PlayerSession(props: ownProps) {
         players={players}
         votesState={votesState}
         clearedStories={clearedStories}
+        currentPlayer={currentPlayer}
       />
     </div>
   );
