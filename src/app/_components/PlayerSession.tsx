@@ -248,39 +248,43 @@ export function PlayerSession(props: ownProps) {
   };
 
   return (
-    <div className="w-full p-2">
-      <div className="flex items-center justify-between">
-        <div className="text-lg text-gray-500">
-          Session ID: <span className="text-blue-400">{id}</span>
-        </div>
-        <button
-          className="cursor-pointer rounded-md border-2 bg-blue-500 p-2 px-6 font-medium text-white"
-          onClick={handleInvite}
-        >
-          + Invite Players
-        </button>
-      </div>
-      <h3 className="my-2 text-xl font-semibold">{currentPlayer?.name}</h3>
+    <div className="p-2 px-4">
       <div className="mt-2 flex flex-col gap-1">
+        <div className="flex flex-col justify-start md:flex-row md:items-center md:justify-between">
+          <div className="text-lg text-gray-500">
+            Session ID: <span className="text-blue-400">{id}</span>
+          </div>
+          <div className="mt-2 w-1/2 md:mt-0 md:w-1/4">
+            <button
+              className="cursor-pointer rounded-md border-2 bg-blue-500 p-2 font-medium text-white md:px-6"
+              onClick={handleInvite}
+            >
+              + Invite Players
+            </button>
+          </div>
+        </div>
+        <h3 className="my-2 text-xl font-semibold">{currentPlayer?.name}</h3>
         <label htmlFor="" className="text-lg text-gray-500">
           Story Description:
         </label>
         <textarea
           name="description"
           id=""
-          className="w-full rounded-md border-2 border-gray-400 p-2"
+          className="mw-full rounded-md border-2 border-gray-400 p-2"
           value={story.text}
           onChange={handleTextChange}
           disabled={!isCreator}
         />
-      </div>
-      <div className="mt-4 flex gap-20">
-        <button
-          className="rounded-md bg-blue-400 px-2 py-2 text-white"
-          onClick={handleClear}
-        >
-          Clear Votes
-        </button>
+        {isCreator && (
+          <div className="flex justify-end">
+            <button
+              className="mt-4 w-1/3 rounded-md bg-blue-400 px-2 py-2 text-white md:w-1/4"
+              onClick={handleClear}
+            >
+              Clear Votes
+            </button>
+          </div>
+        )}
       </div>
 
       <VotesList
