@@ -42,12 +42,12 @@ export function JoinSession(props: ownProps) {
   };
 
   return (
-    <div className="flex w-full flex-col bg-white">
-      <div className="m-4 flex h-3/4 w-3/4 flex-col items-center justify-center gap-2 rounded-md">
-        <h1 className="mb-4 mt-3 text-center text-4xl font-bold md:text-4xl">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-white">
+      <div className="m-4 mx-6 flex flex-col gap-2 rounded-md md:mx-0">
+        <h1 className="mb-2 mt-3 text-center text-3xl font-bold md:text-4xl">
           Welcome to scrum Pointer
         </h1>
-        <p className="text-md mb-6">
+        <p className="text-md mb-6 text-center md:text-lg">
           Easy-to-use and fun story point estimations.
         </p>
         <form
