@@ -21,13 +21,10 @@ export function Navbar() {
       setIsMobile(window.matchMedia("(max-width: 767px)").matches);
     };
 
-    // Run on initial render
     updateIsMobile();
 
-    // Add resize listener
     window.addEventListener("resize", updateIsMobile);
 
-    // Cleanup the listener on unmount
     return () => window.removeEventListener("resize", updateIsMobile);
   }, []);
 
@@ -39,8 +36,6 @@ export function Navbar() {
   const handleToggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
   };
-
-  const isOpen = id && !isMenuOpen && !isMobile;
 
   return (
     <div
@@ -83,8 +78,8 @@ export function Navbar() {
         </div>
       )}
 
-      {isOpen && (
-        <div className="mr-4 flex items-center gap-6">
+      {!isMobile && (
+        <div className="mr-4 hidden items-center gap-6 md:flex">
           {player && (
             <p className="text-lg">
               {player?.name} <span className="text-sm">(Guest user)</span>
