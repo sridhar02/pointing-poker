@@ -22,7 +22,7 @@ interface ownProps {
 export function PlayerSession(props: ownProps) {
   const utils = api.useUtils();
 
-  const { currentPlayer, id, players } = props;
+  const { currentPlayer, id, players, session } = props;
 
   const [story, setStory] = useState<{
     id: string | undefined;
@@ -32,6 +32,7 @@ export function PlayerSession(props: ownProps) {
     text: "",
   });
   const [debouncedDescription] = useDebounce(story.text, 600);
+  const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
   // Story handlers
   const createStory = api.story.createStory.useMutation({
@@ -270,6 +271,7 @@ export function PlayerSession(props: ownProps) {
           className="w-full rounded-md border-2 border-gray-400 p-2"
           value={story.text}
           onChange={handleTextChange}
+          disabled={!isCreator}
         />
       </div>
       <div className="mt-4 flex gap-20">
