@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { type Player } from "@prisma/client";
+
 import SignOutComponent from "./SignOutComponent";
 
 export function Navbar() {
