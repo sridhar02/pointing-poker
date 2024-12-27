@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 import { type Player } from "@prisma/client";
 
-import useLocalStorage from "../hooks/useLocalStorage";
-
 export function Navbar() {
-  const { id } = useParams();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
