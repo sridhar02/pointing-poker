@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 import { EventEmitter } from "stream";
 import { z } from "zod";
 
@@ -12,10 +12,12 @@ export const sessionRouter = createTRPCRouter({
   createSession: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const sessionId = nanoid(10);
+      const alphanumeric =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      const sessionId = customAlphabet(alphanumeric, 12);
       const session = await ctx.db.session.create({
         data: {
-          id: sessionId,
+          id: sessionId(),
         },
       });
 
