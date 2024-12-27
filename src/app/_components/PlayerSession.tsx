@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
 
+import { type Player, type Session, type Story } from "@prisma/client";
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-
-import { type Player, type Session, type Story } from "@prisma/client";
-
 import { api, type RouterOutputs } from "~/trpc/react";
 
 import { PlayerVotes } from "./PlayerVotes";
@@ -95,7 +94,9 @@ export function PlayerSession(props: ownProps) {
     onSuccess: () => {
       utils.vote.getAllVotes
         .invalidate({ storyId: story.id, sessionCode: id })
-        .then(() => {})
+        .then(() => {
+          // No return value here, ensuring the function adheres to the void return type.
+        })
         .catch((error) => {
           console.error("Error invalidating votes:", error);
         });
@@ -111,7 +112,9 @@ export function PlayerSession(props: ownProps) {
         if (action === "vote-added") {
           utils.vote.getAllVotes
             .invalidate({ storyId: story.id, sessionCode: id })
-            .then(() => {})
+            .then(() => {
+              // No return value here, ensuring the function adheres to the void return type.
+            })
             .catch((error) => {
               console.error("Error invalidating votes:", error);
             });
