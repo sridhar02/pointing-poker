@@ -19,18 +19,22 @@ interface ownProps {
   currentPlayer: Player | undefined;
 }
 
+type LocalStory = {
+  id: string | undefined;
+  text: string | undefined;
+};
+
 export function PlayerSession(props: ownProps) {
   const utils = api.useUtils();
 
   const { currentPlayer, id, players, session } = props;
 
-  const [story, setStory] = useState<{
-    id: string | undefined;
-    text: string | undefined;
-  }>({
+  const [story, setStory] = useState<LocalStory>({
     id: undefined,
     text: "",
   });
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const [debouncedDescription] = useDebounce(story.text, 600);
   const isCreator = currentPlayer?.id === session?.createdByPlayerId;
 
@@ -276,13 +280,41 @@ export function PlayerSession(props: ownProps) {
           disabled={!isCreator}
         />
         {isCreator && (
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end">
             <button
               className="mt-4 w-1/3 rounded-md bg-blue-400 px-2 py-2 text-white md:w-1/4"
               onClick={handleClear}
             >
               Clear Votes
             </button>
+            <div
+              className="relative flex items-center"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <svg
+                className="mt-4 h-6 w-6 cursor-pointer text-blue-500 hover:text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M12 19c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7z"
+                />
+              </svg>
+
+              {/* Tooltip */}
+              {showTooltip && (
+                <div className="absolute left-6 top-0 w-64 rounded-md bg-gray-700 p-2 text-sm text-white shadow-md">
+                  Clicking "Clear Votes" will reset all current votes for this
+                  story and move the story to the history section for reference.
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
