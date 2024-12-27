@@ -13,7 +13,7 @@ interface OwnProps {
 export const VotesList = (props: OwnProps) => {
   const { currentPlayerVote, handleVote } = props;
   return (
-    <div className="my-4 mt-8 flex flex-wrap justify-center gap-4">
+    <div className="my-4 mt-8 flex w-full flex-wrap items-center justify-center gap-4 md:justify-center">
       {pokerVotes.map((vote) => (
         <div
           key={vote.id}
