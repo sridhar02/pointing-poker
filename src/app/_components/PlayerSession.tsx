@@ -167,7 +167,7 @@ export function PlayerSession(props: ownProps) {
     {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore overload error
-      onData: ({ story }) => {
+      onData: () => {
         setVotesState([]);
         setStory({
           id: undefined,
