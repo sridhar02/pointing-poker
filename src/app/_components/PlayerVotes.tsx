@@ -15,7 +15,7 @@ interface OwnProps {
 }
 
 export const PlayerVotes = (props: OwnProps) => {
-  const { players, votesState, clearedStories, currentPlayer } = props;
+  const { players, votesState, clearedStories } = props;
   const votesArray = votesState?.map((vote) => vote?.vote) ?? [];
 
   const mappedVotes = votesArray

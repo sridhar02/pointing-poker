@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams,useRouter } from "next/navigation";
 
 import { type Player } from "@prisma/client";
 

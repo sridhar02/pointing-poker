@@ -39,7 +39,6 @@ export function PlayerSession(props: ownProps) {
     id: undefined,
     text: "",
   });
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const [debouncedDescription] = useDebounce(story.text, 600);
   const isCreator = currentPlayer?.id === session?.createdByPlayerId;
@@ -108,7 +107,7 @@ export function PlayerSession(props: ownProps) {
     {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore overload error
-      onData: ({ action, vote }: { action: string; vote: VoteResponse }) => {
+      onData: ({ action }: { action: string }) => {
         if (action === "vote-added") {
           utils.vote.getAllVotes
             .invalidate({ storyId: story.id, sessionCode: id })
