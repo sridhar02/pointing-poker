@@ -269,7 +269,7 @@ export function PlayerSession(props: ownProps) {
               <Tooltip>
                 <TooltipTrigger>
                   <svg
-                    className="mr-2 mt-6 h-6 w-6 cursor-pointer text-blue-500 hover:text-blue-600"
+                    className="mr-2 mt-5 h-6 w-6 cursor-pointer text-blue-500 hover:text-blue-600"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2}

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 import { type Player } from "@prisma/client";
 
 import SignOutComponent from "./SignOutComponent";
 
 export function Navbar() {
+  const { id } = useParams();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -41,6 +42,8 @@ export function Navbar() {
     setIsMenuOpen((prev) => !prev);
   };
 
+  const showSignOut = id && player;
+
   return (
     <div
       className={`border-b-2 bg-blue-600 p-2 text-white md:flex md:justify-between`}
@@ -67,24 +70,20 @@ export function Navbar() {
 
       {isMenuOpen && (
         <div className="flex items-center justify-between gap-6 p-1">
-          {player && (
-            <p className="text-lg">
-              {player?.name} <span className="text-sm">(Guest Player)</span>
-            </p>
+          {showSignOut && (
+            <>
+              <p className="text-lg">
+                {player?.name} <span className="text-sm">(Guest Player)</span>
+              </p>
+              <SignOutComponent handleSignOut={handleSignOut} />
+            </>
           )}
-
-          <button
-            className="cursor-pointer rounded-md border-2 p-1 px-4"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </button>
         </div>
       )}
 
       {!isMobile && (
         <div className="mr-4 hidden items-center gap-6 md:flex">
-          {player && (
+          {showSignOut && (
             <>
               <p className="text-lg">
                 {player?.name} <span className="text-sm">(Guest Player)</span>
