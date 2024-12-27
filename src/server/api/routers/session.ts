@@ -1,5 +1,6 @@
 import { EventEmitter } from "stream";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 
 import { observable } from "@trpc/server/observable";
 
@@ -11,8 +12,11 @@ export const sessionRouter = createTRPCRouter({
   createSession: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const sessionId = nanoid(10);
       const session = await ctx.db.session.create({
-        data: {},
+        data: {
+          id: sessionId,
+        },
       });
 
       const player = await ctx.db.player.create({
