@@ -30,11 +30,17 @@ jobs:
       - name: Install dependencies with pnpm
         run: pnpm install
 
-      # Step 5: Bump the version using pnpm
+      # Step 5: Configure Git (Set user name and email)
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      # Step 6: Bump the version using pnpm
       - name: Bump version
         run: pnpm version patch
 
-      # Step 6: Create a new branch for the version bump
+      # Step 7: Create a new branch for the version bump
       - name: Create new branch
         run: |
           BRANCH_NAME="version-bump-patch-$(date +%Y%m%d%H%M%S)"
@@ -44,7 +50,7 @@ jobs:
           git commit -m "chore: Bump version patch using pnpm"
           git push origin $BRANCH_NAME
 
-      # Step 7: Create Pull Request
+      # Step 8: Create Pull Request
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7
