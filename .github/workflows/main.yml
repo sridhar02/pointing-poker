@@ -27,6 +27,7 @@ jobs:
         run: pnpm install
 
       - name: Bump patch version and create branch
+        id: version_bump
         run: |
           current_version=$(node -p "require('./package.json').version")
           echo "Current version: $current_version"
@@ -39,6 +40,10 @@ jobs:
           # Create a new branch for the version bump
           branch_name="version-bump-v${new_version}"
           git checkout -b $branch_name
+          
+          # Export variables for the next steps
+          echo "branch_name=${branch_name}" >> $GITHUB_ENV
+          echo "new_version=${new_version}" >> $GITHUB_ENV
 
           # Commit the version bump changes
           git config --global user.name "GitHub Action"
@@ -53,7 +58,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.branch_name }} # Use the actual variable for the branch name
+          branch: ${{ env.branch_name }}
           base: main
           title: "Version bump to ${{ env.new_version }}"
           body: "This PR bumps the version to ${{ env.new_version }}."
