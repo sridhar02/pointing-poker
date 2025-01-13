@@ -3,7 +3,7 @@ name: Version Bump Patch PR
 on:
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
-permissions: # Explicitly grant write permissions to the GITHUB_TOKEN
+permissions:
   contents: write
   pull-requests: write
 
@@ -20,14 +20,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*' # Use the latest LTS version of Node.js
+          node-version: 'lts/*'
 
       # Step 3: Install pnpm globally
       - name: Install pnpm
         run: npm install -g pnpm
 
       # Step 4: Install dependencies using pnpm
-      - name: Install dependencies with pnpm
+      - name: Install dependencies
         run: pnpm install
 
       # Step 5: Bump patch version and create branch
@@ -36,16 +36,16 @@ jobs:
         run: |
           current_version=$(node -p "require('./package.json').version")
           echo "Current version: $current_version"
-          
+
           # Bump the patch version
           pnpm version patch --no-git-tag-version
           new_version=$(node -p "require('./package.json').version")
           echo "New version: $new_version"
-          
+
           # Create a new branch for the version bump
           branch_name="version-bump-v${new_version}-$(date +%Y%m%d%H%M%S)"
           git checkout -b $branch_name
-          
+
           # Export variables for the next steps
           echo "branch_name=${branch_name}" >> $GITHUB_ENV
           echo "new_version=${new_version}" >> $GITHUB_ENV
@@ -55,22 +55,21 @@ jobs:
           git config --global user.email "action@github.com"
           git add package.json pnpm-lock.yaml
           git commit -m "chore: Bump version to $new_version"
-          
+
           # Push the new branch to the remote
           git push origin $branch_name
 
-      # Step 6: Create a pull request
+      # Step 6: Install GitHub CLI
+      - name: Install GitHub CLI
+        run: sudo apt install gh -y
+
+      # Step 7: Create a pull request using GitHub CLI
       - name: Create a pull request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.branch_name }}
-          base: main
-          title: "chore: Version bump to ${{ env.new_version }}"
-          body: |
-            This PR bumps the version to ${{ env.new_version }}.
-          labels: |
-            version bump
-            automated pr
-          draft: false
-          always-create: true # Ensures that a pull request is created even if there are no changes
+        run: |
+          gh pr create \
+            --title "chore: Version bump to ${new_version}" \
+            --body "This PR bumps the version to ${new_version}." \
+            --head "${branch_name}" \
+            --base "main" \
+            --label "version bump" \
+            --label "automated pr"
