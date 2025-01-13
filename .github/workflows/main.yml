@@ -1,29 +1,33 @@
-name: Version Bump and Create PR
+name: Version Bump Patch PR
 
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+permissions: # Explicitly grant write permissions to the GITHUB_TOKEN
+  contents: write
+  pull-requests: write
 
 jobs:
-  versionBumpPR:
+  version-bump-pr:
     runs-on: ubuntu-latest
-    steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js with the latest LTS version
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: pnpm
+          node-version: 'lts/*' # Use the latest LTS version of Node.js
 
-      # Step 3: Install pnpm explicitly
+      # Step 3: Install pnpm globally
       - name: Install pnpm
         run: npm install -g pnpm
 
       # Step 4: Install dependencies using pnpm
-      - name: Install dependencies
+      - name: Install dependencies with pnpm
         run: pnpm install
 
       # Step 5: Bump the version using pnpm
@@ -33,11 +37,11 @@ jobs:
       # Step 6: Create a new branch for the version bump
       - name: Create new branch
         run: |
-          BRANCH_NAME="version-bump-$(date +%Y%m%d%H%M%S)"
+          BRANCH_NAME="version-bump-patch-$(date +%Y%m%d%H%M%S)"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           git add package.json pnpm-lock.yaml
-          git commit -m "chore: Bump version using pnpm"
+          git commit -m "chore: Bump version patch using pnpm"
           git push origin $BRANCH_NAME
 
       # Step 7: Create Pull Request
@@ -46,13 +50,13 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT }}
-          commit-message: "chore: Bump version using pnpm"
+          commit-message: "chore: Bump version patch using pnpm"
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           branch: ${{ env.BRANCH_NAME }}
           delete-branch: true
           base: main
-          title: 'chore: Bump version using pnpm'
+          title: 'chore: Bump version patch using pnpm'
           body: |
             This PR bumps the version in `package.json` and updates the lockfile using `pnpm version patch`.
           labels: |
