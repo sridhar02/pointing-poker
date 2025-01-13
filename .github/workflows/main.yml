@@ -11,26 +11,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js and pnpm
-      - name: Setup Node.js and pnpm
+      # Step 2: Setup Node.js with corepack enabled for pnpm
+      - name: Setup Node.js and enable pnpm
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: pnpm
 
-      # Step 3: Install pnpm globally
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable pnpm via Corepack
+        run: corepack enable
 
-      # Step 4: Install dependencies using pnpm
+      # Step 3: Install dependencies using pnpm
       - name: Install dependencies
         run: pnpm install
 
-      # Step 5: Bump the version using pnpm
+      # Step 4: Bump the version using pnpm
       - name: Bump version
         run: pnpm version patch
 
-      # Step 6: Create a new branch for the version bump
+      # Step 5: Create a new branch for the version bump
       - name: Create new branch
         run: |
           BRANCH_NAME="version-bump-$(date +%Y%m%d%H%M%S)"
@@ -40,7 +39,7 @@ jobs:
           git commit -m "chore: Bump version using pnpm"
           git push origin $BRANCH_NAME
 
-      # Step 7: Create a Pull Request
+      # Step 6: Create a Pull Request
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7
