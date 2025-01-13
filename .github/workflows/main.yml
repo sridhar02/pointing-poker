@@ -15,10 +15,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*' # Use the latest LTS version of Node.js
-          cache: 'pnpm'         # Cache pnpm dependencies
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 'latest' # Use the latest version of pnpm
 
       - name: Install dependencies with pnpm
         run: pnpm install
