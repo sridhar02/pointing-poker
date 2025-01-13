@@ -11,6 +11,10 @@ jobs:
   version-bump-pr:
     runs-on: ubuntu-latest
 
+    permissions: # Explicit permissions for creating a PR
+      contents: write
+      pull-requests: write
+
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
