@@ -65,6 +65,8 @@ jobs:
 
       # Step 7: Create a pull request using GitHub CLI
       - name: Create a pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr create \
             --title "chore: Version bump to ${new_version}" \
