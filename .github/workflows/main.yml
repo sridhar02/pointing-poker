@@ -53,7 +53,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: $branch_name
+          branch: ${{ env.branch_name }} # Use the actual variable for the branch name
           base: main
-          title: "Version bump to $new_version"
-          body: "This PR bumps the version to $new_version."
+          title: "Version bump to ${{ env.new_version }}"
+          body: "This PR bumps the version to ${{ env.new_version }}."
