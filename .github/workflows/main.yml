@@ -1,0 +1,52 @@
+name: Version Bump Patch PR
+
+on:
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  version-bump-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Bump patch version and create branch
+        run: |
+          current_version=$(node -p "require('./package.json').version")
+          echo "Current version: $current_version"
+          
+          # Bump the patch version
+          npm version patch --no-git-tag-version
+          new_version=$(node -p "require('./package.json').version")
+          echo "New version: $new_version"
+          
+          # Create a new branch for the version bump
+          branch_name="version-bump-v${new_version}"
+          git checkout -b $branch_name
+
+          # Commit the version bump changes
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add package.json package-lock.json
+          git commit -m "Bump version to $new_version"
+
+          # Push the new branch
+          git push origin $branch_name
+
+      - name: Create a pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: $branch_name
+          base: main
+          title: "Version bump to $new_version"
+          body: "This PR bumps the version to $new_version."
