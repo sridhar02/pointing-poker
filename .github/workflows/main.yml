@@ -20,14 +20,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*'
+          node-version: 'lts/*' # Use the latest LTS version of Node.js
 
       # Step 3: Install pnpm globally
       - name: Install pnpm
         run: npm install -g pnpm
 
       # Step 4: Install dependencies using pnpm
-      - name: Install dependencies
+      - name: Install dependencies with pnpm
         run: pnpm install
 
       # Step 5: Bump patch version and create branch
@@ -59,17 +59,17 @@ jobs:
           # Push the new branch to the remote
           git push origin $branch_name
 
-      # Step 6: Install GitHub CLI
-      - name: Install GitHub CLI
-        run: sudo apt install gh -y
-
-      # Step 7: Create a pull request using GitHub CLI
-      - name: Create a pull request
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr create \
-            --title "chore: Version bump to ${new_version}" \
-            --body "This PR bumps the version to ${new_version}." \
-            --head "${branch_name}" \
-            --base "main"
+      # Step 6: Create Pull Request using peter-evans/create-pull-request action
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3.10.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Bump version to ${{ env.new_version }}"
+          title: "chore: Version bump to ${{ env.new_version }}"
+          body: "This PR bumps the version to ${{ env.new_version }}."
+          branch: ${{ env.branch_name }}
+          base: main
+          labels: |
+            version bump
+            automated pr
+          draft: false
