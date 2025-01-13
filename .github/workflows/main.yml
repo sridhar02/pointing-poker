@@ -3,6 +3,10 @@ name: Version Bump Patch PR
 on:
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
+permissions: # Explicitly grant write permissions to the GITHUB_TOKEN
+  contents: write
+  pull-requests: write
+
 jobs:
   version-bump-pr:
     runs-on: ubuntu-latest
@@ -11,15 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Setup Node.js and pnpm
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*' # Use the latest LTS version of Node.js
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 'latest' # Use the latest version of pnpm
+          node-version: 'lts/*'
+          cache: 'pnpm'
 
       - name: Install dependencies with pnpm
         run: pnpm install
