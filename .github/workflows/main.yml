@@ -51,8 +51,8 @@ jobs:
           git add package.json pnpm-lock.yaml
           git commit -m "Bump version to $new_version"
 
-          # Push the new branch
-          git push origin $branch_name
+          # Force push the new branch
+          git push origin $branch_name --force
 
       - name: Create a pull request
         uses: peter-evans/create-pull-request@v5
