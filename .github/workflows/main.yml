@@ -72,6 +72,4 @@ jobs:
             --title "chore: Version bump to ${new_version}" \
             --body "This PR bumps the version to ${new_version}." \
             --head "${branch_name}" \
-            --base "main" \
-            --label "version bump" \
-            --label "automated pr"
+            --base "main"
