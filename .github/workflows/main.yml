@@ -59,15 +59,23 @@ jobs:
           # Push the new branch to the remote
           git push origin $branch_name
 
-      # Step 6: Create Pull Request using 'GitHub Action for Creating Pull Requests'
+      # Step 6: Create Pull Request using 'devops-infra/action-pull-request'
       - name: Create Pull Request
-        uses: devops-infra/action-pull-request@v1.3.1
+        uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: ${{ env.branch_name }}
-          destination_branch: main
-          pr_title: "chore: Version bump to ${{ env.new_version }}"
-          pr_body: "This PR bumps the version to ${{ env.new_version }}."
-          pr_labels: |
-            version bump
-            automated pr
+          target_branch: main
+          title: "chore: Version bump to ${{ env.new_version }}"
+          template: .github/PULL_REQUEST_TEMPLATE.md
+          body: "**Automated pull request**"
+          reviewer: sridhar02
+          assignee: sridhar02
+          label: version bump
+          milestone: Version Bump Milestone
+          draft: false
+          old_string: "<!-- Add your description here -->"
+          new_string: "** Automatic pull request**"
+          get_diff: true
+          ignore_users: "dependabot"
+          allow_no_diff: false
