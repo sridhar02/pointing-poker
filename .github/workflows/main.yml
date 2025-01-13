@@ -71,8 +71,6 @@ jobs:
           body: "**Automated pull request**"
           reviewer: sridhar02
           assignee: sridhar02
-          label: version bump
-          milestone: Version Bump Milestone
           draft: false
           old_string: "<!-- Add your description here -->"
           new_string: "** Automatic pull request**"
